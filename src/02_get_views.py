@@ -29,7 +29,7 @@ SCHEMA = {"type": "object", "properties": {"expected_return": {"type": "number"}
 NUM = re.compile(r"-?\d+(?:\.\d+)?")
 
 
-def system_prompt(asof: str, market: str, prompt: str) -> str:
+def system_prompt(asof: str, market: str, prompt: str, reasoning: str | None = None) -> str:
     _, country, index, currency, _ = wrds.MARKETS[market]
     s = (f"You are providing analysis on {asof}. Predict the average daily return (in percent) of a stock over the next "
          f"two weeks (10 trading days) from its recent performance. The stock is a constituent of the {index} index ({country}); "
@@ -40,6 +40,8 @@ def system_prompt(asof: str, market: str, prompt: str) -> str:
     if prompt == "B":
         s += ("- 60-Day Summary: the stock's mean daily return, daily volatility, maximum drawdown (all %), its 60-day return "
               "minus the market's, and its market-cap rank within the universe.\n")
+    if reasoning:
+        s = f"Reasoning: {reasoning}\n\n" + s
     s += ("\n# Steps\n1. Assess the recent trend and volatility of the stock relative to the market.\n"
           "2. Consider mean reversion and momentum over a two-week horizon.\n"
           "3. Estimate the average daily return over the next two weeks.\n\n"
@@ -111,7 +113,7 @@ async def run(args):
             for t in tick:
                 summ[t] = (h60[t].mean() * 100, h60[t].std() * 100, dd[t] * 100,
                            ((1 + h60[t]).prod() - (1 + m60).prod()) * 100, int(caps[t]), len(tick))
-        sys_p = system_prompt(str(asof.date()), args.market, args.prompt)
+        sys_p = system_prompt(str(asof.date()), args.market, args.prompt, args.reasoning)
         tasks = [ask(client, args.model, sys_p, user_prompt(t, md.names, hist[t].values, mkt.values, args.prompt, summ.get(t)),
                      args.n, args.temperature, sem, args.max_tokens) for t in tick]
         res = await asyncio.gather(*tasks)
@@ -132,6 +134,7 @@ def main():
     ap.add_argument("--n", type=int, default=20)
     ap.add_argument("--temperature", type=float, default=1.0)
     ap.add_argument("--max_tokens", type=int, default=64)
+    ap.add_argument("--reasoning", default=None, help="gpt-oss reasoning effort (low/medium/high), prepended to the system prompt")
     ap.add_argument("--start", default="2024-09-01")
     ap.add_argument("--end", default="2025-12-31")
     ap.add_argument("--top_n", type=int, default=50)

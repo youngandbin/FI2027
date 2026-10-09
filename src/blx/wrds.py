@@ -86,6 +86,6 @@ def load_rf(series: str) -> pd.Series:
 
 def cap_weighted_market_return(md: MarketData, tickers: list[str], dates: pd.DatetimeIndex) -> pd.Series:
     r = md.returns.loc[dates, tickers]
-    w = md.mktcap.loc[dates, tickers].shift(1).ffill()
+    w = md.mktcap.loc[dates, tickers].shift(1).bfill().ffill()   # previous-day caps; first day uses its own caps
     w = w.div(w.sum(axis=1), axis=0)
     return (r * w).sum(axis=1)

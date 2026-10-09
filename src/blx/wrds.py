@@ -63,6 +63,7 @@ def load_market(key: str, start: str = "2015-01-01") -> MarketData:
         d["uid"] = d["gvkey"].astype(str) + "_" + d["iid"].astype(str)
         ret, cap = d["ret_local"].astype(float), d["mktcap_local"].astype(float)
         names = d.groupby("uid").agg(ticker=("ticker", "last"), company_name=("company_name", "last"), isin=("isin", "last"))
+    names = names.astype(object).where(names.notna(), None)   # plain Python values (JSON-safe)
     names["currency"] = MARKETS[key][3]
     d["ret_"], d["cap_"] = ret.values, cap.values
     d["member_"] = (d["member_start"] <= d["date"]) & (d["date"] <= d["member_end"])
@@ -70,7 +71,7 @@ def load_market(key: str, start: str = "2015-01-01") -> MarketData:
     d = d.sort_values(["date", "uid", "member_"]).drop_duplicates(["date", "uid"], keep="last")
     returns = d.pivot(index="date", columns="uid", values="ret_").sort_index()
     mktcap = d.pivot(index="date", columns="uid", values="cap_").sort_index()
-    member = d.pivot(index="date", columns="uid", values="member_").fillna(False).astype(bool).sort_index()
+    member = d.pivot(index="date", columns="uid", values="member_").astype("boolean").fillna(False).astype(bool).sort_index()
     rf = load_rf(MARKETS[key][4]).reindex(returns.index).ffill().bfill()
     return MarketData(key, returns, mktcap, member, names, rf)
 

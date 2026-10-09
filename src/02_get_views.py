@@ -70,21 +70,33 @@ def parse(text: str):
         return float(m.group()) if m else None
 
 
-async def ask(client, model, sys_p, usr_p, n, temperature, sem, max_tokens):
+async def _one(client, model, sys_p, usr_p, n, temperature, sem, max_tokens, schema, reasoning):
+    kw = dict(model=model, n=n, temperature=temperature, max_tokens=max_tokens,
+              messages=[{"role": "system", "content": sys_p}, {"role": "user", "content": usr_p}])
+    if schema:
+        kw["response_format"] = {"type": "json_schema", "json_schema": {"name": "view", "schema": SCHEMA}}
+    if reasoning:
+        kw["reasoning_effort"] = reasoning
     async with sem:
+        err = None
         for attempt in range(3):
             try:
-                r = await client.chat.completions.create(
-                    model=model, n=n, temperature=temperature, max_tokens=max_tokens,
-                    messages=[{"role": "system", "content": sys_p}, {"role": "user", "content": usr_p}],
-                    response_format={"type": "json_schema", "json_schema": {"name": "view", "schema": SCHEMA}})
-                vals = [parse(c.message.content) for c in r.choices]
+                r = await client.chat.completions.create(**kw)
+                vals = [parse(c.message.content) if c.message.content else None for c in r.choices]
                 return [v for v in vals if v is not None], sum(v is None for v in vals)
             except Exception as e:
                 err = e
                 await asyncio.sleep(2 * (attempt + 1))
-        print(f"request failed: {err}")
+        print(f"request failed: {str(err)[:200]}")
         return [], n
+
+
+async def ask(client, model, sys_p, usr_p, n, temperature, sem, max_tokens, schema=True, reasoning=None, single=False):
+    """N draws for one stock: one request with n=N, or N requests with n=1 (gpt-oss in vLLM rejects n>1)."""
+    if not single:
+        return await _one(client, model, sys_p, usr_p, n, temperature, sem, max_tokens, schema, reasoning)
+    res = await asyncio.gather(*[_one(client, model, sys_p, usr_p, 1, temperature, sem, max_tokens, schema, reasoning) for _ in range(n)])
+    return [v for d, _ in res for v in d], sum(f for _, f in res)
 
 
 async def run(args):
@@ -113,9 +125,10 @@ async def run(args):
             for t in tick:
                 summ[t] = (h60[t].mean() * 100, h60[t].std() * 100, dd[t] * 100,
                            ((1 + h60[t]).prod() - (1 + m60).prod()) * 100, int(caps[t]), len(tick))
-        sys_p = system_prompt(str(asof.date()), args.market, args.prompt, args.reasoning)
+        sys_p = system_prompt(str(asof.date()), args.market, args.prompt)
         tasks = [ask(client, args.model, sys_p, user_prompt(t, md.names, hist[t].values, mkt.values, args.prompt, summ.get(t)),
-                     args.n, args.temperature, sem, args.max_tokens) for t in tick]
+                     args.n, args.temperature, sem, args.max_tokens, schema=not args.no_schema, reasoning=args.reasoning,
+                     single=args.single) for t in tick]
         res = await asyncio.gather(*tasks)
         payload = {t: {"draws": d, "n_fail": nf, "ticker": md.names.loc[t, "ticker"], "company_name": md.names.loc[t, "company_name"]}
                    for t, (d, nf) in zip(tick, res)}
@@ -134,7 +147,9 @@ def main():
     ap.add_argument("--n", type=int, default=20)
     ap.add_argument("--temperature", type=float, default=1.0)
     ap.add_argument("--max_tokens", type=int, default=64)
-    ap.add_argument("--reasoning", default=None, help="gpt-oss reasoning effort (low/medium/high), prepended to the system prompt")
+    ap.add_argument("--reasoning", default=None, help="reasoning_effort for reasoning models (gpt-oss: low/medium/high)")
+    ap.add_argument("--no_schema", action="store_true", help="do not force a JSON schema (gpt-oss in vLLM 0.24 fails with it)")
+    ap.add_argument("--single", action="store_true", help="send N requests with n=1 instead of one request with n=N")
     ap.add_argument("--start", default="2024-09-01")
     ap.add_argument("--end", default="2025-12-31")
     ap.add_argument("--top_n", type=int, default=50)

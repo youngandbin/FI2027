@@ -17,7 +17,7 @@ for i in $(seq 1 120); do
 done
 curl -sf "http://localhost:$PORT/v1/models" >/dev/null || { echo "server did not come up"; tail -30 "$ROOT/.state/vllm_${PORT}.log"; exit 1; }
 EXTRA=()
-case "$MODEL" in openai/gpt-oss-*) EXTRA=(--max_tokens 1024 --reasoning low);; esac
+case "$MODEL" in openai/gpt-oss-*) EXTRA=(--max_tokens 1024 --reasoning low --no_schema --single);; esac
 echo "[$(date +%H:%M)] collecting views" | tee -a "$LOG"
 "$PY" "$ROOT/src/02_get_views.py" --market US --model "$MODEL" --model_tag "$TAG" --prompt A --n 20 \
   --base_url "http://localhost:$PORT/v1" --concurrency 32 "${EXTRA[@]}" 2>&1 | grep -v Warning | tee -a "$LOG"

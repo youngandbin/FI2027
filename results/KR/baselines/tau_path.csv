@@ -1,0 +1,13 @@
+label,n_draws,seed,quarter,tau
+mom_bl,,0,2024Q3,
+mom_bl,,0,2024Q4,
+mom_bl,,0,2025Q1,0.001
+mom_bl,,0,2025Q2,0.001
+mom_bl,,0,2025Q3,0.001
+mom_bl,,0,2025Q4,0.001
+stat_bl,,0,2024Q3,
+stat_bl,,0,2024Q4,
+stat_bl,,0,2025Q1,0.01
+stat_bl,,0,2025Q2,0.004641588833612777
+stat_bl,,0,2025Q3,0.001
+stat_bl,,0,2025Q4,0.001

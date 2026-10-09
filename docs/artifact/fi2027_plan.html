@@ -157,8 +157,8 @@ td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: 
 <div class="wrap">
   <header class="top">
     <div class="eyebrow">FI2027 · Financial Innovation 투고 트랙 · 2026-10-09</div>
-    <h1>LLM의 예측과 그 불확실성을 포트폴리오에 넣으면 정말 나아질까</h1>
-    <p class="lede col">EAAI 2026에 냈던 연구를 더 좋은 데이터, 더 엄격한 평가, 리뷰 지적을 모두 반영한 실험으로 다시 검증하는 계획입니다. 처음 보는 분도 따라올 수 있도록 개념부터 차례로 설명합니다.</p>
+    <h1>LLM 예측 분포를 블랙-리터만 입력으로 바꾸는 프레임워크, 제대로 작동하는가</h1>
+    <p class="lede col">EAAI 2026에 제안한 프레임워크를 더 좋은 데이터, 더 엄격한 평가, 리뷰 지적을 모두 반영한 실험으로 다시 검증하는 계획입니다. 처음 보는 분도 따라올 수 있도록 개념부터 차례로 설명합니다.</p>
     <nav class="toc" aria-label="목차">
       <a href="#summary">한눈에</a><a href="#concepts">기본 개념</a><a href="#before">기존 연구</a><a href="#problems">무엇이 문제였나</a>
       <a href="#compare">기존 vs FI2027</a><a href="#data">데이터·기간</a><a href="#walk">워크포워드</a><a href="#omega">불확실성 검증</a>
@@ -168,14 +168,18 @@ td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: 
 
   <section id="summary">
     <div class="sec-head"><div class="eyebrow">한눈에</div><h2>무엇을, 어떻게 검증하나</h2></div>
-    <p class="claim col">LLM에게 같은 질문을 여러 번 해서 얻은 수익률 예측의 <strong>평균</strong>을 투자 의견(view)으로, 답이 <strong>흩어진 정도</strong>를 그 의견의 불확실성으로 쓰면, 같은 예측을 전통적인 방법으로 쓸 때보다 포트폴리오가 나아지는가.</p>
+    <p class="claim col"><strong>기여:</strong> LLM에게 같은 질문을 여러 번 해서 얻은 수익률 예측의 <strong>평균</strong>을 투자 의견(view)으로, 답이 <strong>흩어진 정도</strong>를 그 의견의 불확실성(Ω)으로 바꿔 블랙-리터만에 넣는, 체계적이고 추적 가능한 프레임워크.</p>
+    <div class="grid2">
+      <div class="term"><b>FI2027이 검증하는 세 가지</b><span>① Ω 매핑이 정말 "의견의 불확실성" 역할을 하는가<br>② 같은 LLM 출력을 다른 방식(상수 Ω, 변동성 기반 Ω, Idzorek)으로 넣을 때보다 나은가<br>③ 시장(4개)과 모델(4개)이 바뀌어도 유지되는가</span></div>
+      <div class="term"><b>포트폴리오 성과의 위치</b><span>성과는 프레임워크의 기여 자체가 아니라, 위 ①~③을 판단하는 척도 중 하나입니다. 동일가중이나 모멘텀과의 비교는 "LLM 의견이 어떤 정보를 담는가"를 보여 주는 참고 자료로 보고합니다.</span></div>
+    </div>
     <div class="facts">
       <div class="fact"><span class="v mono">4개</span><span class="k">시장: 미국 S&amp;P 500, 한국 KOSPI 200, 일본 Nikkei 225, 독일 DAX</span></div>
       <div class="fact"><span class="v mono">16개월</span><span class="k">2024-09 ~ 2025-12. 모델이 학습하지 않은 기간만 사용</span></div>
       <div class="fact"><span class="v mono">4개</span><span class="k">로컬 오픈 LLM. 학습 컷오프를 개발사가 문서로 밝힌 모델만</span></div>
       <div class="fact"><span class="v mono">20회</span><span class="k">종목·시점마다 LLM에 묻는 횟수 (기존 100회에서 축소)</span></div>
     </div>
-    <p class="col">결과가 좋게 나오리라 장담하지 않습니다. 사전 점검에서 기존 결과는 계산 방식을 바로잡자 사라졌습니다(아래 <a href="#problems">무엇이 문제였나</a>). 그래서 먼저 미국 한 시장으로 <strong>살릴지 접을지</strong>를 판정하고(F1), 통과하면 네 시장으로 넓힙니다.</p>
+    <p class="col">프레임워크가 검증을 통과하리라 장담하지 않습니다. 사전 점검에서 프레임워크의 근거로 제시한 성과는 계산 방식을 바로잡자 사라졌습니다(아래 <a href="#problems">무엇이 문제였나</a>). 그래서 먼저 미국 한 시장으로 <strong>프레임워크의 핵심(Ω 매핑)이 작동하는지</strong>를 판정하고(F1), 통과하면 네 시장으로 넓힙니다.</p>
   </section>
 
   <section id="concepts">
@@ -211,8 +215,9 @@ td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: 
       <div class="arrow" aria-hidden="true">→</div>
       <div class="node"><span class="t">평균 → q, 분산 → Ω</span><span class="d">답의 평균을 의견, 흩어짐을 불확실성으로</span></div>
       <div class="arrow" aria-hidden="true">→</div>
-      <div class="node hl"><span class="t">결과</span><span class="d">BL-Llama Sharpe 1.23, BL-Qwen 1.06. 동일가중 0.89, 평균-분산 0.28보다 좋다고 보고</span></div>
+      <div class="node"><span class="t">근거</span><span class="d">BL-Llama Sharpe 1.23, BL-Qwen 1.06. 동일가중 0.89, 평균-분산 0.28보다 좋다고 보고</span></div>
     </div>
+    <p class="claim col"><strong>기존 연구의 기여는 프레임워크</strong>였습니다. 주관적으로 정하던 view와 신뢰도를 LLM 출력 분포에서 직접 얻는, 감사 가능한 경로를 제시했고, 포트폴리오 성과는 그 프레임워크가 쓸모 있다는 근거로 제시했습니다. 리뷰어들은 이 근거와 Ω 매핑의 타당성을 문제 삼았습니다.</p>
   </section>
 
   <section id="problems">
@@ -228,7 +233,7 @@ td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: 
       <figcaption><span class="ft">바로잡자 기존 결과가 사라졌다</span><span class="fs">같은 기간·같은 LLM 답, 계산 방식만 수정. 연율 Sharpe (테스트 2024-09 ~ 2025-06)</span></figcaption>
       <div class="legend"><span><i style="background:var(--s2)"></i>EAAI 원고에 보고한 값</span><span><i style="background:var(--s1)"></i>계산을 바로잡은 뒤</span></div>
       <div class="chart" id="c-eaai"></div>
-      <p class="takeaway">BL-Llama 1.23 → −0.12, BL-Qwen 1.06 → −0.04. 반대로 평균-분산(MVO)은 공분산을 제대로 추정하자 0.28 → 1.52로 올라갔습니다. 기존 결론은 계산 문제에 기대고 있었습니다.</p>
+      <p class="takeaway">BL-Llama 1.23 → −0.12, BL-Qwen 1.06 → −0.04. 반대로 평균-분산(MVO)은 공분산을 제대로 추정하자 0.28 → 1.52로 올라갔습니다. 프레임워크 자체가 틀렸다는 뜻은 아니지만, 프레임워크의 근거로 제시한 성과는 계산 문제에 기대고 있었습니다. 그래서 프레임워크를 새 근거로 다시 검증해야 합니다.</p>
       <details><summary>표로 보기</summary><div class="tbl-wrap"><table id="t-eaai"></table></div></details>
     </figure>
 
@@ -258,7 +263,7 @@ td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: 
           <tr><td>비교군</td><td class="old">동일가중, 평균-분산</td><td class="new">+ 시가총액, view 없는 BL, 모멘텀 BL·상위 10, 통계 BL, 릿지 예측 BL, LLM만 쓴 포트폴리오</td></tr>
           <tr><td>Ω 검증</td><td class="old">없음</td><td class="new">같은 예측에 Ω만 6가지로 바꿔 비교 + 분산이 실제 오차와 맞는지 측정</td></tr>
           <tr><td>통계 검정</td><td class="old">없음</td><td class="new">블록 부트스트랩 신뢰구간, 거래비용 0~25bp, 리밸런싱 1·2·4주</td></tr>
-          <tr><td>주장</td><td class="old">"LLM 덕분에 성과가 좋다"</td><td class="new">"LLM의 불확실성이 전통적 방법보다 가치 있는가" — 아니면 그대로 보고</td></tr>
+          <tr><td>기여와 근거</td><td class="old">프레임워크 제안. 근거는 미국 한 시장의 성과 개선</td><td class="new">같은 프레임워크. 근거는 ① Ω 매핑이 불확실성 역할을 하는지 직접 측정 ② 다른 Ω 방식과의 비교 ③ 4개 시장·4개 모델에서의 일관성. 통과 못 하면 그대로 보고</td></tr>
         </tbody>
       </table>
     </div>
@@ -389,12 +394,13 @@ td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: 
       <div class="stage"><span class="id">F3</span><div><b>원고</b> <span class="when">11월</span><div class="small muted">Financial Innovation 투고. 저자 구성과 게재료는 F1 통과 후 교신저자와 상의</div></div><span class="chip wait">F1 통과 시</span></div>
     </div>
     <h3>F1 판정 기준 (미국, 2025년 구간)</h3>
+    <p class="col small muted">프레임워크의 핵심은 "흩어짐 → Ω" 매핑이므로, 판정도 그 매핑이 작동하는지에 둡니다.</p>
     <div class="checks col">
-      <div class="check"><span>LLM 예측의 순위가 실제 다음 2주 수익률 순위와, <strong>모멘텀보다</strong> 더 잘 맞는가</span></div>
-      <div class="check"><span>LLM 흩어짐을 Ω로 쓴 BL이 모멘텀 BL과 동일가중을 부트스트랩 검정에서 이기는가</span></div>
-      <div class="check"><span>LLM 흩어짐 Ω와 상수 Ω 사이에 차이가 있는가</span></div>
+      <div class="check"><span><strong>불확실성 역할:</strong> 흩어짐이 큰 종목의 의견이 실제로 더 빗나가는가. 종목 변동성 효과를 뺀 뒤에도 그런가</span></div>
+      <div class="check"><span><strong>대안 대비 가치:</strong> 같은 LLM 의견에 흩어짐 Ω를 쓴 BL이 상수 Ω, 변동성 기반(He–Litterman) Ω를 쓴 BL보다 부트스트랩 검정에서 나은가</span></div>
+      <div class="check"><span><strong>참고:</strong> LLM 의견이 모멘텀 이상의 정보를 담는가, 프레임워크 포트폴리오가 동일가중·모멘텀과 비교해 어떤가 (판정이 아니라 보고용)</span></div>
     </div>
-    <p class="col small">b와 c가 모두 아니면 FI 트랙을 접고 IJCAI 트랙에 집중합니다. 하나로 판단하기 어려우면 Gemma 3 27B로 한 번 더 확인합니다.</p>
+    <p class="col small">a와 b가 모두 아니면 프레임워크의 핵심 주장이 성립하지 않으므로 FI 트랙을 접고 IJCAI 트랙에 집중합니다. 하나로 판단하기 어려우면 Gemma 3 27B로 한 번 더 확인합니다.</p>
   </section>
 
   <section id="ijcai">
@@ -404,11 +410,11 @@ td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: 
       <table class="cmp">
         <thead><tr><th></th><th>FI2027 (이 계획)</th><th>IJCAI2027</th></tr></thead>
         <tbody>
-          <tr><td>질문</td><td class="new">LLM 의견과 흩어짐이 4개 시장 포트폴리오를 개선하는가</td><td class="old">LLM의 여러 불확실성 신호는 무엇에 반응하고, 어느 것이 결정에 쓸 만한가</td></tr>
+          <tr><td>질문</td><td class="new">"LLM 출력 분포 → BL 입력" 프레임워크가 4개 시장·4개 모델에서 주장대로 작동하는가</td><td class="old">LLM의 여러 불확실성 신호는 무엇에 반응하고, 어느 것이 결정에 쓸 만한가</td></tr>
           <tr><td>불확실성 신호</td><td class="new">반복 답의 흩어짐 하나</td><td class="old">반복 답, 직접 물은 범위, 토큰 확률, 질문 바꿔 묻기, 모델 간 차이 — 5종</td></tr>
           <tr><td>입력</td><td class="new">숫자만</td><td class="old">숫자 + 공시·뉴스 텍스트, 회사명 가리기, 가짜 공시</td></tr>
           <tr><td>데이터</td><td class="new">WRDS 4개 시장, 2024-09 ~ 2025-12</td><td class="old">미국, 2025-07 ~ 2026-09 (예정)</td></tr>
-          <tr><td>기여</td><td class="new">금융 실증</td><td class="old">AI 방법론</td></tr>
+          <tr><td>기여</td><td class="new">금융 프레임워크의 실증 검증</td><td class="old">AI 방법론</td></tr>
         </tbody>
       </table>
     </div>
@@ -418,13 +424,13 @@ td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: 
     <div class="sec-head"><div class="eyebrow">한계와 열린 질문</div><h2>미리 알고 가는 것</h2></div>
     <div class="gloss">
       <div class="term"><b>기간</b><span>시장당 16개월은 짧습니다. 네 시장을 묶어 보완하지만 해소는 아닙니다.</span></div>
-      <div class="term"><b>숫자 입력</b><span>지금까지 숫자만 준 LLM은 모멘텀을 따라 했습니다. 모델을 바꿔도 같을 가능성이 큽니다. F1이 이것을 가장 먼저 확인합니다.</span></div>
+      <div class="term"><b>숫자 입력</b><span>지금까지 숫자만 준 LLM의 의견은 모멘텀을 따라 했습니다. 프레임워크는 의견이 어디서 오든 작동해야 하지만, 의견이 모멘텀과 같다면 "LLM이 왜 필요한가"라는 질문은 남습니다. 원고에서 이 점을 분명히 밝힙니다.</span></div>
       <div class="term"><b>경계 모델</b><span>Gemma 3의 컷오프(2024-08)는 테스트 시작 직전입니다. 다른 모델과 결과가 크게 다르면 따로 표시합니다.</span></div>
       <div class="term"><b>추론 모델</b><span>gpt-oss는 답하기 전에 생각하는 모델이라 흩어짐에 "생각 경로의 차이"가 섞입니다. 비추론 모델과 나눠 보고합니다.</span></div>
     </div>
     <details class="col"><summary>가이드 점검 (연구 가이드 기준)</summary>
       <div class="stack small" style="margin-top:8px">
-        <p><strong>한 문장 주장:</strong> 시점 기준 종목과 4개 시장에서, LLM 반복 답의 흩어짐이 변동성 기반 Ω와 상수 Ω보다 포트폴리오 결정에 가치가 있는지 검증하고, 없으면 그대로 보고한다.</p>
+        <p><strong>한 문장 주장:</strong> LLM 출력 분포를 BL의 view와 Ω로 바꾸는 프레임워크가, 시점 기준 종목과 4개 시장에서 Ω 매핑이 불확실성 역할을 하고 다른 Ω 방식보다 나은지를 검증하고, 아니면 그대로 보고한다.</p>
         <p><strong>충족:</strong> 문제부터(리뷰·사전 점검의 실패에서 출발), 누출 점검(시점별 종목·문서화된 컷오프·과거 데이터만으로 보정), 부정적 결과도 결과(판정 기준을 미리 정함), 주장을 검증하는 실험(리뷰 지적마다 실험 배정). <strong>미충족:</strong> 재현성(실행 전), 기간 한계(명시만 가능).</p>
         <p><strong>세 질문:</strong> 무엇을 주장하는가 — 위 한 문장. 실험이 검증하는가 — Ω만 바꾼 비교가 직접 검증. 회의적 독자가 납득하는가 — "16개월은 짧다", "그냥 변동성 아니냐"에 각각 네 시장 결과와 He–Litterman 비교로 답한다.</p>
       </div>

@@ -1,0 +1,55 @@
+\begin{figure}[htbp]
+\centering
+    \scalebox{0.92}{%
+    \begin{tcolorbox}[colframe=blue!80!black, colback=blue!10!white, coltitle=white, title=System Prompt, width=1.08\columnwidth]
+    \scriptsize
+    \setlength{\itemsep}{1pt}%
+    \setlength{\topsep}{2pt}%
+    \setlength{\partopsep}{0pt}%
+    \setlength{\parsep}{0pt}%
+    You are providing analysis on \texttt{{\{\{DATE\}\}}}. Predict the average daily return for the next two weeks based on the information provided about a stock's past performance.
+    You will receive the following inputs:
+    \begin{itemize}
+        \item \textbf{Daily Returns}: The stock's daily returns, a time-series from the past two weeks.
+        \item \textbf{Company Sector}: The company's GICS sector classification.
+        \item \textbf{Sector Returns}: The company sector's daily returns, a time-series from the past two weeks.
+        \item \textbf{Market Returns}: The S\&P 500's daily returns, a time-series from the past two weeks.
+        \item \textbf{Company Information}:
+            \begin{itemize}
+                \item Ticker: The stock symbol.
+                \item Company Name: The name of the company.
+                \item GICS Sector: The Global Industry Classification Standard sector.
+                \item GICS Sub-Industry: The sub-industry classification.
+            \end{itemize}
+    \end{itemize}
+    
+    \# Steps
+    \begin{enumerate}
+        \item \textbf{Analyze the Time-Series Data}: Review the historical daily returns to identify patterns, trends, or anomalies that may affect future performance.
+        \item \textbf{Consider Sector Performance}: Analyze how the market and the sector's performance might influence the stock's future returns.
+        \item \textbf{Incorporate Company Information}: Use the details from the GICS sector and sub-industry, along with the company symbol and name, to contextualize the predicted performance within its industry.
+        \item \textbf{Predict Future Returns}: Estimate the average daily returns for the next two weeks based on the analysis of available data.
+    \end{enumerate}
+    
+    \# Output Format
+    \begin{quote}
+    Return a single float value that represents the predicted average daily return for the stock over the next two weeks, without any additional commentary or explanation.
+    \end{quote}
+    
+    \# Notes
+    \begin{itemize}
+        \item Ensure the prediction considers the quantified data from the time-series.
+        \item Make calculations based on statistical trends from daily returns data.
+        \item Pay attention to the trends within both the stock's daily returns and the market's return data.
+        \item Consider the relevance of the company's sector to refine your predictions.
+        \item Make calculations without additional interpretation or commentary.
+    \end{itemize}
+    
+    \end{tcolorbox}%
+    }
+    \caption{The structure of the system prompt used to elicit return forecasts from the LLMs.}
+    \label{fig:system_prompt}
+\end{figure}
+
+
+

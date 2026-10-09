@@ -1,0 +1,240 @@
+% \documentclass[preprint,12pt]{elsarticle}
+\documentclass[preprint,1p,12pt,authoryear]{elsarticle} % EAAI
+\usepackage[x11names]{xcolor}
+\usepackage{fontawesome5}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{hyperref} 
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{nicefrac}
+\usepackage{multirow}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{wrapfig}
+% Graphics / floats
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{forest}
+\usepackage{tikz}                  
+\usepackage[x11names]{xcolor}
+
+% Algorithms / misc.
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{marvosym}
+\usepackage{color}
+\usepackage{mathrsfs}
+
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{multirow} % 
+\usepackage{makecell} % 
+% ----------------------------------------------------------------
+% Custom colours & TikZ / forest styles
+% ----------------------------------------------------------------
+\definecolor{hidden-draw}{RGB}{255,255,255}
+\definecolor{hidden-pink}{RGB}{255,182,193}
+\definecolor{level0}{RGB}{240,248,255}
+\definecolor{level1}{RGB}{224,240,255}
+\definecolor{darkgray}{gray}{0.30}
+
+\tikzstyle{my-box}=[
+    rectangle,
+    draw=hidden-draw,
+    rounded corners,
+    text opacity=1,
+    minimum height=1.5em,
+    minimum width=5em,
+    inner sep=2pt,
+    align=center,
+    fill opacity=.5,
+    line width=0.8pt,
+]
+\tikzstyle{leaf}=[
+    my-box,
+    minimum height=1.5em,
+    fill=hidden-pink!80,
+    text=black,
+    align=left,
+    font=\normalsize,
+    inner xsep=2pt,
+    inner ysep=4pt,
+    line width=0.8pt,
+]
+
+\usepackage{amsthm} 
+\newtheorem{assumption}{Assumption} 
+\usepackage{filecontents}
+\usepackage{threeparttable}
+\usepackage{siunitx}
+\usepackage{soul} 
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{tcolorbox}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+
+
+
+\newif\ifblind
+\blindtrue   % EAAI
+% \blindfalse
+
+\journal{Integrating Large Language Models into Portfolio Optimization: A Black-Litterman Approach} % EAAI
+
+\begin{document}
+\begin{frontmatter}
+
+
+% \title{LLM-Enhanced Black-Litterman Portfolio Optimization}
+\title{Integrating Large Language Models into Portfolio Optimization: A Black-Litterman Approach} % EAAI
+% -----------------------------------------------------------
+% [수정된 부분] 스위치에 따라 저자 정보를 숨기거나 표시합니다
+% -----------------------------------------------------------
+\ifblind
+    % === Blind Mode (심사용) ===
+    % 저자 정보가 완전히 숨겨집니다.
+    % 필요하다면 아래 주석을 풀어 "Anonymous Authors"라고 표시할 수도 있습니다.
+    \author{Anonymous Authors}
+\else
+    % === Non-Blind Mode (최종본/아카이브용) ===
+    %% --- First Line Authors ---
+    \author[inst1]{Youngbin Lee\fnref{equal}}
+    \author[inst2]{Yejin Kim\fnref{equal}}
+    \author[inst3]{Juhyeong Kim}
+    \author[inst1]{Suin Kim}
+    
+    %% --- Second Line Authors ---
+    \author[inst4]{Yoontae Hwang\corref{cor1}}
+    \ead{yoontae.hwang@pusan.ac.kr}
+    \author[inst5]{Yongjae Lee\corref{cor1}}
+    \ead{yongjaelee@unist.ac.kr}
+    
+    %% Footnotes
+    \fntext[equal]{Equal contribution}
+    \cortext[cor1]{Corresponding authors.}
+    
+    %% Affiliations
+    \affiliation[inst1]{organization={Elice},
+                city={Seoul},
+                country={Republic of Korea}}
+    
+    \affiliation[inst2]{organization={Meritz Fire \& Marine Insurance},
+                city={Seoul},
+                country={Republic of Korea}}
+    
+    \affiliation[inst3]{organization={Mirae Asset Global Investments},
+                city={Seoul},
+                country={Republic of Korea}}
+    
+    \affiliation[inst4]{organization={Pusan National University},
+                city={Busan},
+                country={Republic of Korea}}
+    
+    \affiliation[inst5]{organization={Ulsan National Institute of Science and Technology},
+                city={Ulsan},
+                country={Republic of Korea}}
+\fi
+% -----------------------------------------------------------
+
+
+\begin{abstract}
+Large language models (LLMs) have demonstrated remarkable capabilities in analyzing financial text and generating market insights. However, integrating these unstructured and often qualitative outputs into disciplined quantitative portfolio construction remains a challenge. To bridge this gap, this study proposes a systematic framework that operationalizes LLM capabilities within the Black-Litterman model. Instead of relying on single-point estimates, we treat LLM-generated forecasts as probabilistic distributions. We map the mean of stochastic draws to investor views and their dispersion to view confidence levels.  This approach provides an auditable route to incorporate LLM-driven signals into rigorous mean-variance optimization. We validated this methodology through an out-of-sample backtest on a universe of large-cap U.S. equities. The results indicate that portfolios driven by propsed framework showed favorable risk-adjusted returns compared to equal-weight and traditional mean-variance benchmarks. These findings demonstrate that our framework effectively translates the predictive power of LLMs into systematic asset allocation.
+The source code and data are available at: \faGithub \href{https://anonymous.4open.science/r/FRL2026-E3E5}{LLM-BLM} 
+\end{abstract}
+
+\begin{highlights} % EAAI: 공백 포함 85자 이내! (Highlights should consist of 3 to 5 bullet points, each a maximum of 85 characters, including spaces.)
+\item A systematic framework integrating large language models into Black-Litterman model.
+\item Maps AI forecast distributions to investor views and confidence levels.
+\item Provides an auditable pipeline for AI-driven quantitative asset allocation.
+\end{highlights}
+
+%% Keywords
+\begin{keyword} 
+Black-Litterman model
+\sep Large Language Models
+\sep Portfolio optimization
+
+
+\end{keyword}
+
+\end{frontmatter}
+
+
+
+
+% \newpage
+% \thispagestyle{empty} % Title page에는 페이지 번호 제거
+
+% \begin{center}
+%     \vspace*{2cm}
+
+%     % 1. Title
+%     % {\Large \textbf{LLM-Enhanced Black-Litterman Portfolio Optimization}}
+%     {\Large \textbf{Enhancing Black-Litterman Portfolio Optimization with Large Language Models}} % EAAI에서는 제목에 약어 사용 금지
+%     \vspace{2cm}
+
+%     % 2. Author Names
+%     {\large
+%         Youngbin Lee\textsuperscript{a,1},
+%         Yejin Kim\textsuperscript{b,1},
+%         Juhyeong Kim\textsuperscript{c},
+%         Suin Kim\textsuperscript{a}, \\[5pt]
+%         Yoontae Hwang\textsuperscript{d,*} and
+%         Yongjae Lee\textsuperscript{e,*}
+%     }
+
+%     \vspace{1.5cm}
+
+%     % 3. Affiliations
+%     {\normalsize
+%         \textsuperscript{a}Elice, Seoul, Republic of Korea \\
+%         \textsuperscript{b}Meritz Fire \& Marine Insurance, Seoul, Republic of Korea \\
+%         \textsuperscript{c}Mirae Asset Global Investments, Seoul, Republic of Korea \\
+%         \textsuperscript{d}Pusan National University, Busan, Republic of Korea \\
+%         \textsuperscript{e}Ulsan National Institute of Science and Technology, Ulsan, Republic of Korea
+%     }
+
+%     \vspace{3cm}
+
+%     % 4. Contact Info / Footnotes
+%     \begin{flushleft}
+%         \rule{5cm}{0.5pt} \\[5pt] % 구분선
+%         \footnotesize
+%         \textsuperscript{1}Equal contribution. \\
+%         \textsuperscript{*}Corresponding authors. \\
+%         \textit{E-mail addresses:} \texttt{yoontae.hwang@pusan.ac.kr} (Yoontae Hwang), \texttt{yongjaelee@unist.ac.kr} (Yongjae Lee)
+%     \end{flushleft}
+
+% \end{center}
+% \newpage
+
+
+\input{section/1_introduction}
+\input{section/2_RelatedWork}
+\input{section/3_Method}
+\input{section/4_5_Experiment}
+\input{section/6_Conclusion}
+
+% \bibliographystyle{elsarticle-num} 
+\bibliographystyle{elsarticle-harv} % EAAI (Examples: "as demonstrated (Allan, 2020a, 2020b; Allan and Jones, 2019)" or "as demonstrated (Jones, 2019; Allan, 2020). Kramer et al. (2023) have recently shown".)
+\bibliography{EAAI}
+
+\newpage
+
+%\section*{Acknowledgment}
+%This work was supported by the National Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) (No. RS-2025-24803208) and the Institute of Information \& Communications Technology Planning \& Evaluation (IITP) grant funded by the Korea government (MSIT) (No. RS-2020-II201336, Artificial Intelligence Graduate School Program (UNIST)). This work was supported by a New Faculty Research Grant of Pusan National University, 2025.
+
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+During the preparation of this work the author(s) used Gemini 2.5 Pro in order to refine the grammar and tone of the written text. Importantly, the research results, including the development of the code and the core scientific contributions, were carried out entirely without the assistance of LLMs. After using this tool/service, the author(s) reviewed and edited the content as needed and take(s) full responsibility for the content of the published article.
+
+\end{document}
+

@@ -1,0 +1,23 @@
+.DS_Store
+*.swp
+__pycache__/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local environments and state
+.venv/
+.state/
+
+# Data (WRDS parquet files are licensed; FRED and LLM draws are regenerable)
+data/wrds/
+data/rf/
+data/views/
+
+# LaTeX build outputs (keep only the PDF)
+paper/*/build/*
+!paper/*/build/main.pdf
+*.zip

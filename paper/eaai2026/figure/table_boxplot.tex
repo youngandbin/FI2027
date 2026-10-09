@@ -1,0 +1,29 @@
+\begin{table}[h!]
+    \centering
+    \caption{Summary Statistics of LLM-Generated Views}
+    \label{tab:view_statistics}
+    \renewcommand{\arraystretch}{1.2}
+    % siunitx 설정: 숫자를 소수점 4자리로 정렬
+    \sisetup{
+        round-mode=places,
+        round-precision=4,
+        table-format=-2.4 % 부호, 정수 2자리, 소수 4자리
+    }
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{l S S S S}
+    \toprule
+    \textbf{Metric} & {\textbf{\texttt{Gemma-7B}}} & {\textbf{\texttt{Qwen-2-7B}}} & {\textbf{\texttt{Llama-3.1-8B}}} & {\textbf{\texttt{GPT-4o-mini}}} \\
+    \midrule
+    \textbf{Count}      & \multicolumn{1}{c}{1000} & \multicolumn{1}{c}{1000} & \multicolumn{1}{c}{1000} & \multicolumn{1}{c}{1000} \\
+    \textbf{Mean}       & -0.3847       & 0.1007        & 0.1786        & 0.1347        \\
+    \textbf{Std}        & 0.7492        & 0.2430        & 0.2248        & 0.4171        \\
+    \textbf{Min}        & -2.5617       & -1.1486       & -0.5812       & -2.9331       \\
+    \textbf{25\%}       & -0.9917       & 0.0159        & 0.0290        & -0.0299       \\
+    \textbf{Median}     & -0.5152       & 0.0343        & 0.1169        & 0.1295        \\
+    \textbf{75\%}       & 0.1607        & 0.1519        & 0.2923        & 0.3191        \\
+    \textbf{Max}        & 2.6854        & 1.2284        & 1.1264        & 2.6172        \\
+    \bottomrule
+    \end{tabular}
+\par\small\textit{Note:} All metrics except `Count' are expressed in percentages (\%).
+\end{table}

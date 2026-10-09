@@ -1,0 +1,12 @@
+\section{Conclusion}
+
+We propose an auditable mapping from stochastic LLM forecasts to Black–Litterman views, treating the mean of stochastic forecasts as investor views and their predictive dispersion as confidence levels. To validate this protocol, we conducted an out-of-sample backtest over a 10-month period using large-cap equities. The results demonstrated that portfolios driven by signals from a subset of the tested models demonstrated the potential to enhance portfolio performance compared to both equal‑weight and mean-variance benchmarks after transaction costs. 
+
+While our primary contribution is establishing this robust protocol, the experiments yielded preliminary observations regarding model behavior.
+Primarily, we observed that utilizing models with higher baseline forecasting accuracy appeared to support better portfolio performance.
+Secondary observations regarding distributional patterns and uncertainty alignment suggest that the framework's effectiveness may also depend on model-specific characteristics, such as the generation of concentrated forecasts or the calibration of reported confidence.
+
+We emphasize, however, that these observations are strictly conditional on our specific experimental design.
+Crucially, the performance rankings are limited to the inference settings employed in this study; variations in prompt engineering, sampling temperature, reasoning steps (e.g., Chain-of-Thought), or model versions could yield significantly different outcomes. 
+Therefore, our results should be interpreted as a validation of the proposed framework's viability rather than a definitive evaluation of any specific model's financial capability.
+% Future research could extend this work by estimating joint views across assets, incorporating timestamped financial text under strict information sets, or exploring regime‑aware model selection over longer investment horizons.

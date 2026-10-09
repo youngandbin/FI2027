@@ -1,0 +1,31 @@
+\begin{table*}[htbp] % table* for wide table, [htbp] for placement preference
+\centering
+\caption{Summary of Deep Learning Models and Characteristics by Financial Application}
+\label{tab:application_summary}
+\small % Adjust font size for better fit if needed
+
+\begin{tabularx}{\textwidth}{>{\RaggedRight}X >{\RaggedRight}X >{\RaggedRight}X >{\RaggedRight}X >{\RaggedRight\arraybackslash}X}
+\toprule
+\textbf{Financial Application} & \textbf{Key DL Model/Technique} & \textbf{Core Contribution/Advantage} & \textbf{Key Limitation} & \textbf{Key References} \\
+\midrule
+\endhead % End of header for longtable
+
+% Removed \endfoot and \endlastfoot as table* with tabularx doesn't support them directly.
+% For multi-page tables, longtable environment is required, but it's typically used standalone, not inside table/table*.
+% If you NEED multi-page, remove table*/tabularx and use the longtable code from previous responses.
+
+[cite_start]Asset Pricing & Feed-forward NN, Residual NN, Autoencoder, DRL, LLM Fusion & Accommodates high-dimensional information, complex non-linearities, and interaction effects; automated discovery of latent risk factors; enriches information with textual signals. [cite: 109, 114, 118] [cite_start]& Tendency to overfit; sensitivity to data properties; can lack economic interpretability without imposed structure. [cite: 112, 113, 47] [cite_start]& Gu et al., 2019[cite: 111]; [cite_start]Chen et al., 2024a[cite: 111]; [cite_start]Wang et al., 2025 [cite: 118] \\
+\addlinespace
+[cite_start]Financial Time-Series Forecasting & LSTM, CNN, Transformer, GNN, Causal Dilated Convolutions & Models non-linear time series dynamics; captures local and long-range patterns; enhances multivariate modeling; injects economic structure. [cite: 126, 128, 129, 130, 131, 134] [cite_start]& Non-stationarity; low signal-to-noise ratio; data scarcity; computational cost for very long sequences; slow adaptation to regime shifts. [cite: 30, 61, 66] [cite_start]& Fischer \& Krauss, 2018[cite: 126]; [cite_start]Lim et al., 2021[cite: 129]; [cite_start]Hwang et al., 2024 [cite: 133] \\
+\addlinespace
+[cite_start]Portfolio Optimization & Differentiable Optimization (SPO), Deep Reinforcement Learning (DRL), GNN, LLM Integration & Integrates prediction and optimization (decision-aware); learns dynamic trading policies; accounts for transaction costs and market impact; learns asset relationships and market states. [cite: 157, 158, 166, 173] [cite_start]& Sensitivity to estimation errors; can produce extreme/unstable weights; computational intensity for complex constraints. [cite: 155, 163] [cite_start]& Elmachtoub \& Grigas, 2022[cite: 158]; [cite_start]Wang et al., 2019[cite: 167]; [cite_start]Turner \& Cucuringu, 2023 [cite: 174] \\
+\addlinespace
+[cite_start]Index Tracking & Autoencoder, Stochastic Neural Networks, Reinforcement Learning (RL), GNN & Learns low-dimensional latent representations for asset selection; reframes discrete selection into continuous optimization; learns sequential rebalancing policies; groups assets based on market graphs. [cite: 182, 184, 188, 196] [cite_start]& Combinatorial optimization complexity; computationally intensive; sensitivity to market conditions; need for robust evaluation. [cite: 180, 189, 198] [cite_start]& Kim \& Kim, 2020[cite: 186]; [cite_start]Zheng et al., 2020[cite: 191]; [cite_start]Peng et al., 2023 [cite: 195] \\
+\addlinespace
+[cite_start]Risk Management & Generative Adversarial Networks (GANs), Diffusion Models, RNN, Hybrid Models & Samples realistic future paths for stress testing; explicitly skews discriminator loss for rare events; learns full tail-density; captures non-linear contagion channels. [cite: 202, 204, 213, 214, 220] [cite_start]& Can produce economically unrealistic scenarios (arbitrage); mode collapse risk; requires large datasets for robustness; evaluation beyond statistical fit. [cite: 202, 207, 210, 223] [cite_start]& Wiese et al., 2020[cite: 203]; [cite_start]Cont et al., 2022[cite: 204]; [cite_start]Chronopoulos et al., 2024 [cite: 214] \\
+\addlinespace
+[cite_start]Large Language Models (LLMs) & FinBERT, FinGPT, BloombergGPT, Agent-based LLM Systems & Enhances sentiment-based trading; learns nuanced company representations; provides domain-specific lexical knowledge; acts as cognitive components in multi-agent systems. [cite: 227, 228, 233, 239, 248] [cite_start]& Hallucinations (factually incorrect info); limited quantitative reasoning; domain shift (from general to finance); computational and API costs. [cite: 239, 260, 267, 309] [cite_start]& Araci, 2019[cite: 245]; [cite_start]Wu et al., 2023[cite: 241]; [cite_start]Xiao et al., 2024 [cite: 251] \\
+
+\bottomrule
+\end{tabularx}
+\end{table*}

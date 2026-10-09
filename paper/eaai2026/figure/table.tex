@@ -1,0 +1,50 @@
+% 문서 상단(preamble)에 다음 두 줄을 추가하세요.
+% \usepackage{siunitx}
+% \usepackage{soul} % \ul (밑줄) 명령을 위해
+
+% \begin{table*}[t!]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    % siunitx 설정: 숫자를 소수점 4자리로 반올림하고, 굵은 글씨체를 감지하도록 설정
+    \sisetup{
+        round-mode=places,
+        round-precision=4,
+        detect-weight=true,
+        table-format=-1.4
+    }
+    % 글자 크기를 약간 줄이고, 열 사이의 간격을 조절하여 공간을 확보합니다
+    \footnotesize % \small \footnotesize 
+    \setlength{\tabcolsep}{2.8pt} % 기본값(6pt)보다 간격을 줄입니다.
+    \begin{tabularx}{\columnwidth}{ % 전체 너비를 현재 열 너비(\columnwidth)에 맞춥니다.
+        >{\RaggedRight}X  % 첫 번째 열을 유연한 X타입으로 변경해 자동 줄바꿈을 적용합니다.
+        S[table-format=1.4]
+        S[table-format=1.4]
+        S[table-format=-1.4]
+        S[table-format=1.4]
+        S[table-format=1.4]
+        S[table-format=-1.4]
+    }
+        \hline
+        {Metric} & {EW} & {MVO} & {\textbf{\texttt{BLM-Gemma}}} & {\textbf{\texttt{BLM-Qwen}}} & {\textbf{\texttt{BLM-Llama}}} & {\textbf{\texttt{BLM-GPT}}} \\
+        \hline
+        CAGR \(\uparrow\) & 0.1907 & 0.0607 & 0.1590 & \bfseries 0.2811 & \ul{0.2751} & 0.0768 \\
+        mean \(\uparrow\) & 0.0008 & 0.0004 & 0.0007 & \bfseries 0.0011 & \ul{0.0010} & 0.0004 \\
+        std \(\downarrow\) & \bfseries 0.0122 & 0.0179 & 0.0156 & 0.0152 & \ul{0.0124} & 0.0132 \\
+        Sharpe \(\uparrow\) & 0.0563 & 0.0176 & 0.0402 & \ul{0.0669} & \bfseries 0.0774 & 0.0228 \\
+        mean (ann.) \(\uparrow\) & 0.1932 & 0.0994 & 0.1784 & \bfseries 0.2763 & \ul{0.2627} & 0.0958 \\
+        std (ann.) \(\downarrow\) & \bfseries 0.1938 & 0.2841 & 0.2481 & 0.2413 & \ul{0.1975} & 0.2093 \\
+        Sharpe (ann.) \(\uparrow\) & 0.8937 & 0.2793 & 0.6386 & \ul{1.0624} & \bfseries 1.2286 & 0.3619 \\
+        MDD \(\uparrow\) & -0.1688 & -0.1620 & -0.1551 & \bfseries -0.1375 & \ul{-0.1383} & -0.1649 \\
+        VaR95\% \(\uparrow\) & -0.0171 & -0.0259 & \ul{-0.0168} & -0.0182 & -0.0169 & \bfseries -0.0157 \\
+        CVaR95\% \(\uparrow\) & \bfseries -0.0280 & -0.0448 & -0.0372 & -0.0320 & \ul{-0.0283} & -0.0312 \\
+        % MSE $\downarrow$ & 0 & 0.9376 & 1.2373 & \bfseries 0.5125 & \ul{0.5288} & 0.6505 \\
+        % RMSE $\downarrow$ & 0 & 0.9683 & 1.1123 & \bfseries 0.7159 & \ul{0.7272} & 0.8066 \\
+        % MAE $\downarrow$ & 0 & 0.6989 & 0.8608 & \bfseries 0.5168 & \ul{0.5281} & 0.5702 \\
+        \hline
+    \end{tabularx}
+    \caption{
+    \textbf{Out-of-sample Investment Performance of Portfolios}
+    % Comparative Analysis of Out-of-sample Quantitative Performance and Risk Metrics for All Portfolios. BLM-Qwen achieved the highest absolute return (CAGR of 0.2811), while BLM-Llama delivered the best risk-adjusted return (Sharpe (ann.) of 1.2286). Both strategies significantly surpassed the baseline, demonstrating the framework's ability to generate consistent alpha.
+    }
+    \label{tab:vertical_performance_comparison}
+% \end{table*}

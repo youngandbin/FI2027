@@ -1,0 +1,16 @@
+numpy
+pandas>=2.2,<3
+scipy
+cvxpy
+yfinance
+lxml
+openai
+pydantic
+requests
+pytz
+tqdm
+matplotlib
+seaborn
+scikit-learn
+ipykernel
+pyarrow

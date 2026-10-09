@@ -1,0 +1,79 @@
+% \begin{table}[h!]
+%     \centering
+%     \caption{\textbf{Comparison of Prediction Errors and Classification Metrics}}
+%     \label{tab:prediction_metrics}
+%     \renewcommand{\arraystretch}{1.2}
+%     % siunitx 설정: 숫자를 소수점 4자리로 정렬
+%     \sisetup{
+%         round-mode=places,
+%         round-precision=4,
+%         detect-weight=true,
+%         table-format=1.4 % 정수 1자리, 소수 4자리
+%     }
+%     \small
+%     \setlength{\tabcolsep}{5pt}
+%     % tabularx 대신 tabular와 siunitx의 S column을 사용
+%     \begin{tabular}{l S S S S S}
+%     \toprule
+%     \textbf{Metric} & {\textbf{MVO}} & {\textbf{\texttt{BLM-Gemma}}} & {\textbf{\texttt{BLM-Qwen}}} & {\textbf{\texttt{BLM-Llama}}} & {\textbf{\texttt{BLM-GPT}}} \\
+%     \midrule
+%     CAGR \(\uparrow\) & 0.0607 & 0.1590 & \bfseries 0.2811 & \ul{0.2751} & 0.0768 \\
+%     Sharpe \(\uparrow\) & 0.0176 & 0.0402 & \ul{0.0669} & \bfseries 0.0774 & 0.0228 \\
+%     \midrule
+%     MSE $\downarrow$  & 0.9376 & 1.2373 & \bfseries 0.5125 & \ul{0.5288} & 0.6505 \\
+%     RMSE $\downarrow$ & 0.9683 & 1.1123 & \bfseries 0.7159 & \ul{0.7272} & 0.8066 \\
+%     MAE $\downarrow$  & 0.6989 & 0.8608 & \bfseries 0.5168 & \ul{0.5281} & 0.5702 \\
+%     \midrule
+%     Accuracy $\uparrow$  & {0.5059} & 0.4719 & \bfseries 0.5719 & \ul{0.5437} & 0.5215 \\
+%     Precision $\uparrow$ & {0.5689} & 0.5648 & \bfseries 0.5781 & \ul{0.5689} & 0.5645 \\
+%     Recall $\uparrow$    & {0.5711} & 0.3437 & \bfseries 0.9367 & \ul{0.8424} & 0.7235 \\
+%     F1 $\uparrow$        & {0.5700} & 0.4273 & \bfseries 0.7150 & \ul{0.6792} & 0.6342 \\
+%     \bottomrule
+%     \end{tabular}
+% \end{table}
+
+
+\begin{table}[h!]
+    \centering
+    \caption{\textbf{Comparison of Portfolio and Predictive Performance Metrics}}
+    \label{tab:prediction_metrics}
+    \renewcommand{\arraystretch}{1.2}
+    
+    % siunitx 설정
+    \sisetup{
+        round-mode=places,
+        round-precision=4,
+        detect-weight=true,
+        table-format=1.4
+    }
+    \small
+    \setlength{\tabcolsep}{4pt} % 컬럼이 늘어났으므로 간격을 조금 좁힘
+    
+    % 컬럼 정의: 맨 앞에 그룹용 'l' 추가 (총 7개 컬럼)
+    \begin{tabular}{l l S S S S S}
+    \toprule
+    & \textbf{Metric} & {\textbf{MVO}} & {\textbf{\texttt{BLM-Gemma}}} & {\textbf{\texttt{BLM-Qwen}}} & {\textbf{\texttt{BLM-Llama}}} & {\textbf{\texttt{BLM-GPT}}} \\
+    \midrule
+    
+    % --- Group 1: Portfolio Performance ---
+    \multirow{2}{*}{\shortstack[l]{\textbf{Portfolio}\\\textbf{Performance}}} 
+        & CAGR \(\uparrow\)    & 0.0607 & 0.1590 & \bfseries 0.2811 & \ul{0.2751} & 0.0768 \\
+        & Sharpe \(\uparrow\)  & 0.0176 & 0.0402 & \ul{0.0669} & \bfseries 0.0774 & 0.0228 \\
+    \midrule
+    
+    % --- Group 2: Regression ---
+    \multirow{3}{*}{\shortstack[l]{\textbf{Predictive}\\\textbf{Performance}\\\textbf{(Regression)}}} 
+        & MSE $\downarrow$     & 0.9376 & 1.2373 & \bfseries 0.5125 & \ul{0.5288} & 0.6505 \\
+        & RMSE $\downarrow$    & 0.9683 & 1.1123 & \bfseries 0.7159 & \ul{0.7272} & 0.8066 \\
+        & MAE $\downarrow$     & 0.6989 & 0.8608 & \bfseries 0.5168 & \ul{0.5281} & 0.5702 \\
+    \midrule
+    
+    % --- Group 3: Classification ---
+    \multirow{4}{*}{\shortstack[l]{\textbf{Predictive}\\\textbf{Performance}\\\textbf{(Classification)}}} 
+        & Accuracy $\uparrow$  & {0.5059} & 0.4719 & \bfseries 0.5719 & \ul{0.5437} & 0.5215 \\
+        & Precision $\uparrow$ & {0.5689} & 0.5648 & \bfseries 0.5781 & \ul{0.5689} & 0.5645 \\
+        & Recall $\uparrow$    & {0.5711} & 0.3437 & \bfseries 0.9367 & \ul{0.8424} & 0.7235 \\
+        & F1 $\uparrow$        & {0.5700} & 0.4273 & \bfseries 0.7150 & \ul{0.6792} & 0.6342 \\
+    \bottomrule
+    \end{tabular}
+\end{table}

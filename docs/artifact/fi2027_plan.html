@@ -1,0 +1,624 @@
+<title>FI2027 연구 계획</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@600;700&display=swap">
+<style>
+/* Layout: one reading column (~46rem) with figures allowed to widen to ~64rem; research-memo feel, cool paper + ink blue */
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --ink: #141a22;
+  --ink-2: #48515f;
+  --ink-3: #747e8c;
+  --rule: #dce0e6;
+  --accent: #1d4f91;
+  --accent-soft: #e5edf8;
+  --s1: #2a78d6;           /* series 1: after / FI2027 / future */
+  --s2: #eb6834;           /* series 2: before / EAAI / past */
+  --div-pos: #2a78d6;
+  --div-neg: #e34948;
+  --div-mid: #f0efec;
+  --good: #0ca30c;
+  --warn: #c98500;
+  --crit: #d03b3b;
+  --display: "Noto Serif KR", "Nanum Myeongjo", "Apple SD Gothic Neo", serif;
+  --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121519; --surface: #1a1e24; --ink: #eef1f5; --ink-2: #b7bec9; --ink-3: #8b94a1; --rule: #2d333c;
+    --accent: #8db4ef; --accent-soft: #1c2a3e; --s1: #3987e5; --s2: #d95926;
+    --div-pos: #3987e5; --div-neg: #e66767; --div-mid: #383835; --good: #2fbf2f; --warn: #e0a21a; --crit: #e66767;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121519; --surface: #1a1e24; --ink: #eef1f5; --ink-2: #b7bec9; --ink-3: #8b94a1; --rule: #2d333c;
+  --accent: #8db4ef; --accent-soft: #1c2a3e; --s1: #3987e5; --s2: #d95926;
+  --div-pos: #3987e5; --div-neg: #e66767; --div-mid: #383835; --good: #2fbf2f; --warn: #e0a21a; --crit: #e66767;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.7; }
+.wrap { max-width: 64rem; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; }
+.col { max-width: 46rem; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.35; margin: 0; }
+h1 { font-size: clamp(1.9rem, 4.4vw, 2.7rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.55rem; font-weight: 700; }
+h3 { font-size: 1.12rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.lede { font-size: 1.12rem; color: var(--ink-2); }
+.muted { color: var(--ink-3); }
+.small { font-size: 0.88rem; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+strong { font-weight: 600; }
+
+header.top { display: grid; gap: 14px; padding-bottom: 28px; border-bottom: 1px solid var(--rule); }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 10px; }
+nav.toc a { font-size: 0.84rem; text-decoration: none; color: var(--ink-2); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 11px; background: var(--surface); }
+nav.toc a:hover { color: var(--accent); border-color: var(--accent); }
+
+section { display: grid; gap: 18px; padding-block: 44px; border-bottom: 1px solid var(--rule); scroll-margin-top: 12px; }
+section:last-of-type { border-bottom: 0; }
+.sec-head { display: grid; gap: 6px; }
+.stack { display: grid; gap: 14px; }
+
+/* key facts */
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.fact { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.fact .v { font-family: var(--display); font-size: 1.7rem; font-weight: 700; line-height: 1.2; }
+.fact .k { font-size: 0.86rem; color: var(--ink-2); }
+
+/* one-sentence claim */
+.claim { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; font-size: 1.08rem; }
+
+/* glossary */
+.gloss { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.term { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; min-width: 0; }
+.term b { font-family: var(--display); font-weight: 600; font-size: 1.02rem; }
+.term span { font-size: 0.92rem; color: var(--ink-2); }
+
+/* flow diagrams in HTML */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+.node { flex: 1 1 150px; min-width: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; align-content: start; }
+.node .t { font-weight: 600; }
+.node .d { font-size: 0.88rem; color: var(--ink-2); }
+.node.hl { border-color: var(--accent); background: var(--accent-soft); }
+.arrow { flex: 0 0 auto; align-self: center; color: var(--ink-3); font-family: var(--mono); font-size: 1.2rem; }
+@media (max-width: 640px) { .arrow { transform: rotate(90deg); flex-basis: 100%; text-align: center; } }
+
+/* figures */
+figure { margin: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 18px 14px; display: grid; gap: 10px; min-width: 0; }
+figcaption { display: grid; gap: 4px; }
+figcaption .ft { font-weight: 600; font-size: 1rem; }
+figcaption .fs { font-size: 0.88rem; color: var(--ink-2); }
+.chart { width: 100%; overflow-x: auto; }
+.chart svg { display: block; width: 100%; min-width: 520px; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.86rem; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.takeaway { font-size: 0.92rem; background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
+details { font-size: 0.86rem; color: var(--ink-2); }
+details summary { cursor: pointer; color: var(--ink-3); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+
+/* svg text */
+svg text { font-family: var(--body); fill: var(--ink-2); font-size: 12px; }
+svg .lbl { fill: var(--ink); font-size: 12.5px; }
+svg .num { font-family: var(--mono); font-size: 11.5px; fill: var(--ink-2); }
+svg .grid { stroke: var(--rule); stroke-width: 1; }
+svg .axis { stroke: var(--ink-3); stroke-width: 1; }
+svg .conn { stroke: var(--ink-3); stroke-width: 2; stroke-linecap: round; opacity: .55; }
+svg .dot-a { fill: var(--s2); stroke: var(--surface); stroke-width: 2; }
+svg .dot-b { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
+svg .target { stroke: var(--ink-2); stroke-width: 1.5; }
+svg .hit { fill: transparent; cursor: default; }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--ink-2); font-size: 0.84rem; }
+td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.cmp td:first-child { font-weight: 600; white-space: nowrap; }
+.cmp td.old { color: var(--ink-2); }
+.cmp td.new { background: var(--accent-soft); }
+.heat td.n { color: var(--ink); }
+
+/* status chips */
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; white-space: nowrap; border-radius: 999px; padding: 1px 9px; border: 1px solid currentColor; }
+.chip.ok { color: var(--good); }
+.chip.part { color: var(--warn); }
+.chip.run { color: var(--accent); }
+.chip.wait { color: var(--ink-3); }
+
+/* stages */
+.stages { display: grid; gap: 10px; }
+.stage { display: grid; grid-template-columns: 76px 1fr auto; gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; }
+.stage .id { font-family: var(--mono); font-weight: 500; color: var(--accent); }
+.stage .when { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-3); }
+@media (max-width: 560px) { .stage { grid-template-columns: 1fr; } }
+.checks { display: grid; gap: 8px; counter-reset: c; }
+.check { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; }
+.check::before { counter-increment: c; content: counter(c, lower-alpha); font-family: var(--mono); color: var(--accent); border: 1px solid var(--accent); border-radius: 50%; width: 24px; height: 24px; display: grid; place-items: center; font-size: 0.8rem; }
+
+.steps4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; counter-reset: s; }
+.step { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.step .no { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
+
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 0.82rem; line-height: 1.45; padding: 7px 10px; border-radius: 6px; max-width: 260px; box-shadow: 0 4px 14px rgb(0 0 0 / .18); }
+@media (prefers-reduced-motion: no-preference) { nav.toc a { transition: color .15s, border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">FI2027 · Financial Innovation 투고 트랙 · 2026-10-09</div>
+    <h1>LLM의 예측과 그 불확실성을 포트폴리오에 넣으면 정말 나아질까</h1>
+    <p class="lede col">EAAI 2026에 냈던 연구를 더 좋은 데이터, 더 엄격한 평가, 리뷰 지적을 모두 반영한 실험으로 다시 검증하는 계획입니다. 처음 보는 분도 따라올 수 있도록 개념부터 차례로 설명합니다.</p>
+    <nav class="toc" aria-label="목차">
+      <a href="#summary">한눈에</a><a href="#concepts">기본 개념</a><a href="#before">기존 연구</a><a href="#problems">무엇이 문제였나</a>
+      <a href="#compare">기존 vs FI2027</a><a href="#data">데이터·기간</a><a href="#walk">워크포워드</a><a href="#omega">불확실성 검증</a>
+      <a href="#baselines">지금까지 결과</a><a href="#reviews">리뷰 대응</a><a href="#stages">단계·판정</a><a href="#ijcai">IJCAI와의 경계</a><a href="#limits">한계</a>
+    </nav>
+  </header>
+
+  <section id="summary">
+    <div class="sec-head"><div class="eyebrow">한눈에</div><h2>무엇을, 어떻게 검증하나</h2></div>
+    <p class="claim col">LLM에게 같은 질문을 여러 번 해서 얻은 수익률 예측의 <strong>평균</strong>을 투자 의견(view)으로, 답이 <strong>흩어진 정도</strong>를 그 의견의 불확실성으로 쓰면, 같은 예측을 전통적인 방법으로 쓸 때보다 포트폴리오가 나아지는가.</p>
+    <div class="facts">
+      <div class="fact"><span class="v mono">4개</span><span class="k">시장: 미국 S&amp;P 500, 한국 KOSPI 200, 일본 Nikkei 225, 독일 DAX</span></div>
+      <div class="fact"><span class="v mono">16개월</span><span class="k">2024-09 ~ 2025-12. 모델이 학습하지 않은 기간만 사용</span></div>
+      <div class="fact"><span class="v mono">4개</span><span class="k">로컬 오픈 LLM. 학습 컷오프를 개발사가 문서로 밝힌 모델만</span></div>
+      <div class="fact"><span class="v mono">20회</span><span class="k">종목·시점마다 LLM에 묻는 횟수 (기존 100회에서 축소)</span></div>
+    </div>
+    <p class="col">결과가 좋게 나오리라 장담하지 않습니다. 사전 점검에서 기존 결과는 계산 방식을 바로잡자 사라졌습니다(아래 <a href="#problems">무엇이 문제였나</a>). 그래서 먼저 미국 한 시장으로 <strong>살릴지 접을지</strong>를 판정하고(F1), 통과하면 네 시장으로 넓힙니다.</p>
+  </section>
+
+  <section id="concepts">
+    <div class="sec-head"><div class="eyebrow">기본 개념</div><h2>먼저 알아둘 것</h2>
+      <p class="col muted">블랙-리터만(Black–Litterman, BL)은 "시장이 이미 반영한 평균적인 기대"와 "내 의견"을 섞어 포트폴리오를 짜는 방법입니다. 의견이 확실할수록 많이 반영합니다.</p></div>
+    <div class="flow" role="img" aria-label="블랙-리터만의 흐름: 시장 평균과 LLM 의견을 τ로 섞어 기대수익률을 만들고 포트폴리오 비중을 정한다">
+      <div class="node"><span class="t">시장 평균</span><span class="d">시가총액 비중에서 거꾸로 계산한 "시장이 기대하는 수익률" (사전분포)</span></div>
+      <div class="arrow" aria-hidden="true">+</div>
+      <div class="node hl"><span class="t">LLM의 의견 (view)</span><span class="d">평균 q = 예상 수익률<br>흩어짐 Ω = 그 의견의 불확실성</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="t">섞기 (τ)</span><span class="d">어느 쪽을 더 믿을지 정하는 손잡이. Ω가 작은 의견일수록 더 반영</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="t">포트폴리오 비중</span><span class="d">섞인 기대수익률로 위험 대비 수익이 좋은 비중을 계산</span></div>
+    </div>
+    <div class="gloss">
+      <div class="term"><b>기대수익률</b><span>운을 뺀 그 주식의 "실력값". 아무도 정확히 모릅니다.</span></div>
+      <div class="term"><b>실현 수익률</b><span>실제로 일어난 수익률 = 기대수익률 + 그 기간의 운(잡음).</span></div>
+      <div class="term"><b>view (q)</b><span>LLM이 말한 "앞으로 2주 평균 일수익률은 이 정도". 20번 답의 평균.</span></div>
+      <div class="term"><b>Ω (view 불확실성)</b><span>그 의견이 실력값에서 얼마나 빗나갈 수 있나. 20번 답이 흩어진 정도로 잽니다.</span></div>
+      <div class="term"><b>τ (타우)</b><span>시장 평균과 LLM 의견 중 어느 쪽을 더 믿을지 정하는 손잡이. 데이터로 고릅니다.</span></div>
+      <div class="term"><b>변동성</b><span>그 주식이 평소 얼마나 출렁이는가. 과거 주가만 봐도 압니다.</span></div>
+      <div class="term"><b>Sharpe 비율</b><span>위험 한 단위당 초과수익. 클수록 좋은 포트폴리오. 이 문서의 성과 지표는 모두 연율 Sharpe입니다.</span></div>
+      <div class="term"><b>모멘텀</b><span>"최근 오른 주식이 계속 오른다"는 단순한 규칙. LLM이 이것보다 나아야 의미가 있습니다.</span></div>
+    </div>
+  </section>
+
+  <section id="before">
+    <div class="sec-head"><div class="eyebrow">기존 연구 · EAAI 2026 투고</div><h2>기존 연구가 한 일</h2></div>
+    <div class="flow" role="img" aria-label="기존 연구의 흐름">
+      <div class="node"><span class="t">데이터</span><span class="d">Yahoo Finance, S&amp;P 500 상위 50종목(2025년 3월 기준), 2024-06 ~ 2025-06</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="t">질문 100회</span><span class="d">7–8B 모델 4개(Gemma, Qwen, Llama, GPT-4o-mini)에 최근 2주 수익률을 주고 "다음 2주 평균 일수익률"을 100번 질문</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="t">평균 → q, 분산 → Ω</span><span class="d">답의 평균을 의견, 흩어짐을 불확실성으로</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node hl"><span class="t">결과</span><span class="d">BL-Llama Sharpe 1.23, BL-Qwen 1.06. 동일가중 0.89, 평균-분산 0.28보다 좋다고 보고</span></div>
+    </div>
+  </section>
+
+  <section id="problems">
+    <div class="sec-head"><div class="eyebrow">무엇이 문제였나</div><h2>리뷰와 사전 점검에서 드러난 것</h2>
+      <p class="col muted">리뷰어 3명이 같은 약점을 지적했고, 코드를 다시 보니 리뷰어가 못 본 계산 문제도 있었습니다. 기존 데이터로 계산 방식만 바로잡아 다시 돌려 본 결과가 아래 그림들입니다.</p></div>
+
+    <div class="grid2">
+      <div class="term"><b>리뷰 지적 (요약)</b><span>① 분산이 정말 불확실성인지 증거 없음, temperature에 따라 달라짐 ② Ω를 바꿔 본 비교·강한 비교군 없음 ③ 기간이 짧고 종목을 2025년 기준으로 골라 생존편향 ④ 출시일은 학습 컷오프가 아님 ⑤ 유의성 검정 없음 ⑥ 텍스트를 쓴다면서 입력은 숫자뿐</span></div>
+      <div class="term"><b>리뷰어가 못 본 계산 문제</b><span>① 50종목 공분산을 2주(약 10일) 데이터로 추정 → 50차원 중 7~9차원만 살아 있는 깨진 행렬 ② 위험회피계수가 28구간 중 11구간에서 음수 → 시장 평균의 부호가 뒤집힘 ③ 시장 비중을 미래(2025-05) 시가총액으로 계산</span></div>
+    </div>
+
+    <figure>
+      <figcaption><span class="ft">바로잡자 기존 결과가 사라졌다</span><span class="fs">같은 기간·같은 LLM 답, 계산 방식만 수정. 연율 Sharpe (테스트 2024-09 ~ 2025-06)</span></figcaption>
+      <div class="legend"><span><i style="background:var(--s2)"></i>EAAI 원고에 보고한 값</span><span><i style="background:var(--s1)"></i>계산을 바로잡은 뒤</span></div>
+      <div class="chart" id="c-eaai"></div>
+      <p class="takeaway">BL-Llama 1.23 → −0.12, BL-Qwen 1.06 → −0.04. 반대로 평균-분산(MVO)은 공분산을 제대로 추정하자 0.28 → 1.52로 올라갔습니다. 기존 결론은 계산 문제에 기대고 있었습니다.</p>
+      <details><summary>표로 보기</summary><div class="tbl-wrap"><table id="t-eaai"></table></div></details>
+    </figure>
+
+    <figure>
+      <figcaption><span class="ft">숫자만 주면 LLM은 "최근 오른 주식이 오른다"고 답한다</span><span class="fs">시점마다 50종목에 대한 LLM 예측의 순위가 ① 과거 10일 수익률 순위, ② 실제 다음 2주 수익률 순위와 얼마나 같은지 (순위 상관, 1이면 완전히 같음)</span></figcaption>
+      <div class="legend"><span><i style="background:var(--s2)"></i>과거 10일 수익률과의 순위 상관</span><span><i style="background:var(--s1)"></i>실제 다음 2주 수익률과의 순위 상관</span></div>
+      <div class="chart" id="c-mom"></div>
+      <p class="takeaway">8개 모델 모두 예측이 과거 수익률을 거의 그대로 따라갑니다(0.72~0.91). 실제 미래와의 상관은 0에 가깝습니다(0.01~0.04). GPT-4.1, o3 같은 큰 모델도 같습니다. 리뷰어의 "왜 LLM이 필요한가"에 대한 지금의 답은 "숫자만 주면 LLM은 모멘텀 계산기"입니다.</p>
+      <details><summary>표로 보기</summary><div class="tbl-wrap"><table id="t-mom"></table></div></details>
+    </figure>
+  </section>
+
+  <section id="compare">
+    <div class="sec-head"><div class="eyebrow">기존 vs FI2027</div><h2>무엇이 달라지나</h2></div>
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <thead><tr><th>항목</th><th>기존 연구 (EAAI)</th><th>FI2027</th></tr></thead>
+        <tbody>
+          <tr><td>데이터</td><td class="old">Yahoo Finance 가격</td><td class="new">WRDS: CRSP(미국) + Compustat Global(한·일·독). 배당 포함 총수익률, 시점별 시가총액</td></tr>
+          <tr><td>시장</td><td class="old">미국 1개</td><td class="new">미국·한국·일본·독일 4개</td></tr>
+          <tr><td>종목 선정</td><td class="old">2025년 3월 시가총액 상위 50으로 고정 (미래 정보)</td><td class="new">리밸런싱 날마다 "그날의 지수 구성종목 중 그날 상위 50" (생존편향 제거)</td></tr>
+          <tr><td>기간</td><td class="old">테스트 9개월</td><td class="new">16개월 × 4개 시장 (보고 구간 2025년, 결정 약 100회)</td></tr>
+          <tr><td>LLM</td><td class="old">7–8B 모델 4개, 컷오프 대신 출시일 제시</td><td class="new">gpt-oss-20b·120b, Gemma 3 27B, Llama 3.3 70B. 개발사가 문서로 밝힌 컷오프 ≤ 2024-08</td></tr>
+          <tr><td>반복 횟수</td><td class="old">100회 (근거 없음)</td><td class="new">20회. 5·10·20회로 줄여 가며 결과가 같은지 확인</td></tr>
+          <tr><td>공분산·시장 평균</td><td class="old">2주 데이터(깨진 행렬), 위험회피계수 부호 반전</td><td class="new">126일 데이터 + 수축 추정, 위험회피계수 2.5 고정, 시점별 시가총액</td></tr>
+          <tr><td>τ 고르기</td><td class="old">처음 3개월로 한 번 고르고 고정</td><td class="new">분기마다 그때까지의 성과로 다시 고름 (워크포워드)</td></tr>
+          <tr><td>비교군</td><td class="old">동일가중, 평균-분산</td><td class="new">+ 시가총액, view 없는 BL, 모멘텀 BL·상위 10, 통계 BL, 릿지 예측 BL, LLM만 쓴 포트폴리오</td></tr>
+          <tr><td>Ω 검증</td><td class="old">없음</td><td class="new">같은 예측에 Ω만 6가지로 바꿔 비교 + 분산이 실제 오차와 맞는지 측정</td></tr>
+          <tr><td>통계 검정</td><td class="old">없음</td><td class="new">블록 부트스트랩 신뢰구간, 거래비용 0~25bp, 리밸런싱 1·2·4주</td></tr>
+          <tr><td>주장</td><td class="old">"LLM 덕분에 성과가 좋다"</td><td class="new">"LLM의 불확실성이 전통적 방법보다 가치 있는가" — 아니면 그대로 보고</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="data">
+    <div class="sec-head"><div class="eyebrow">데이터와 기간</div><h2>왜 2024년 9월부터 2025년 말까지인가</h2>
+      <p class="col muted">LLM이 학습할 때 본 기간을 테스트에 쓰면 답을 미리 아는 셈입니다. 그래서 모든 모델의 학습 컷오프 이후만 씁니다. WRDS 데이터가 2025년 말에 끝나므로 쓸 수 있는 구간은 16개월입니다.</p></div>
+    <figure>
+      <figcaption><span class="ft">기간 구성</span><span class="fs">위: 데이터와 모델의 경계. 아래: 실험에 쓰는 구간</span></figcaption>
+      <div class="chart" id="c-time"></div>
+    </figure>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>시장</th><th>지수</th><th class="n">구성종목 수</th><th class="n">사용 종목</th><th class="n">2024-08 상위 종목 중 2025-12에도 남은 수</th></tr></thead>
+        <tbody>
+          <tr><td>미국</td><td>S&amp;P 500</td><td class="n">503</td><td class="n">50</td><td class="n">40</td></tr>
+          <tr><td>한국</td><td>KOSPI 200</td><td class="n">200</td><td class="n">50</td><td class="n">42</td></tr>
+          <tr><td>일본</td><td>Nikkei 225</td><td class="n">225</td><td class="n">50</td><td class="n">43</td></tr>
+          <tr><td>독일</td><td>DAX</td><td class="n">40</td><td class="n">40</td><td class="n">37</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="col small muted">마지막 열은 종목이 실제로 바뀐다는 뜻입니다. 기존 연구처럼 끝 시점 기준으로 고르면 이 교체를 무시하고 "살아남은 종목"만 보게 됩니다.</p>
+  </section>
+
+  <section id="walk">
+    <div class="sec-head"><div class="eyebrow">워크포워드</div><h2>τ는 분기마다, 과거 성적만 보고 다시 고른다</h2>
+      <p class="col muted">학생이 분기마다 지금까지 본 시험 결과로 공부법을 바꾸는 것과 같습니다. 앞으로 볼 시험 문제는 보지 않습니다. τ 후보 13개(0.001 ~ 10)가 과거에 냈을 성과를 비교해 가장 좋았던 값을 다음 분기에 씁니다.</p></div>
+    <figure>
+      <figcaption><span class="ft">분기별로 보는 기간과 쓰는 기간</span><span class="fs">예시: 미국, 모멘텀 BL이 실제로 고른 τ</span></figcaption>
+      <div class="legend"><span><i style="background:var(--s2)"></i>τ를 고를 때 보는 과거 성적</span><span><i style="background:var(--s1)"></i>고른 τ를 쓰는 분기</span></div>
+      <div class="chart" id="c-walk"></div>
+      <p class="takeaway">판단 근거가 분기마다 늘어나고, 시장이 바뀌면 τ도 따라 바뀝니다. 약점도 있습니다. 근거가 4개월뿐인 2025년 1분기에 τ=1.0(LLM 의견을 강하게 믿음)이 뽑혀 한 종목에 86%가 몰렸습니다. 그래서 종목당 비중을 10%로 묶은 변형도 함께 보고합니다.</p>
+    </figure>
+    <p class="col small muted">모든 전략(LLM BL, 모멘텀 BL, 통계 BL, Ω 변형 6종)에 같은 절차를 적용해 비교를 공정하게 합니다. 아래의 "보정 Ω"도 같은 원리로 과거 데이터로만 만듭니다.</p>
+  </section>
+
+  <section id="omega">
+    <div class="sec-head"><div class="eyebrow">불확실성 검증</div><h2>"분산이 보정되지 않았다"는 지적을 어떻게 다루나</h2>
+      <p class="col muted">리뷰어 3명 모두의 핵심 지적입니다. 먼저 Ω가 무엇인지 정확히 하고, 그 정의에 맞는 방식으로 검사합니다.</p></div>
+
+    <figure>
+      <figcaption><span class="ft">실현 수익률에는 운이 섞여 있다</span><span class="fs">예: 애플. LLM 의견 0.10% ± 0.05%, 그런데 실제 2주 평균은 −0.40%</span></figcaption>
+      <div class="chart" id="c-noise"></div>
+      <p class="takeaway">BL에서 Ω는 "의견이 <strong>실력값</strong>에서 얼마나 빗나갈 수 있나"입니다. 실현 수익률을 얼마나 틀리는지가 아닙니다. 그래서 기존 연구의 해석(그 종목 의견의 불확실성)은 정의상 맞습니다. 하지만 실력값은 볼 수 없어 실현 수익률과 비교할 수밖에 없고, 그때는 운의 폭을 함께 고려해야 공정합니다.</p>
+    </figure>
+
+    <div class="grid2">
+      <figure>
+        <figcaption><span class="ft">크기: 운을 넣고 채점하면 대체로 맞다</span><span class="fs">"95% 확신 범위"에 실제 결과가 들어간 비율 (기존 데이터)</span></figcaption>
+        <div class="legend"><span><i style="background:var(--s2)"></i>LLM 흩어짐만으로 채점</span><span><i style="background:var(--s1)"></i>흩어짐 + 운의 폭으로 채점</span></div>
+        <div class="chart" id="c-cov"></div>
+        <details><summary>표로 보기</summary><div class="tbl-wrap"><table id="t-cov"></table></div></details>
+      </figure>
+      <figure>
+        <figcaption><span class="ft">순서: 정보의 대부분은 "원래 출렁이는 종목"이었다</span><span class="fs">흩어짐이 큰 종목이 실제로 더 틀렸나 (순위 상관)</span></figcaption>
+        <div class="legend"><span><i style="background:var(--s2)"></i>그대로 비교</span><span><i style="background:var(--s1)"></i>종목 변동성 효과를 뺀 뒤</span></div>
+        <div class="chart" id="c-shape"></div>
+        <details><summary>표로 보기</summary><div class="tbl-wrap"><table id="t-shape"></table></div></details>
+      </figure>
+    </div>
+    <p class="takeaway col">정리: 크기 문제는 대부분 채점 방식의 오해였고(남는 차이는 τ가 흡수), 순서 문제는 맞는 지적입니다. LLM 흩어짐의 정보는 대부분 종목 변동성이고, 그것을 넘는 정보는 GPT 계열에만 약하게 남습니다. 변동성으로 Ω를 정하는 것은 전통적인 He–Litterman 방식이 이미 하는 일입니다.</p>
+
+    <h3>네 단계로 처리합니다</h3>
+    <div class="steps4">
+      <div class="step"><span class="no">1 · 측정</span><b>크기와 순서를 따로 잰다</b><span class="small">크기: 운의 폭을 더한 범위로 커버리지. 순서: 출렁임이 비슷한 종목끼리 비교한 순위 상관.</span></div>
+      <div class="step"><span class="no">2 · temperature</span><b>설정을 바꿔도 순서가 유지되나</b><span class="small">Gemma 3 27B로 temperature 0.5 / 1.0 / 1.5. 크기는 당연히 변하므로 순서가 유지되는지가 질문.</span></div>
+      <div class="step"><span class="no">3 · 고치기</span><b>크기는 τ, 순서는 보정으로</b><span class="small">τ가 전체 크기를 맞춥니다. 보정 Ω는 과거 데이터로 "흩어짐 → 실제 오차" 대응표를 만들어 순서를 바로잡습니다.</span></div>
+      <div class="step"><span class="no">4 · 판정</span><b>결정 가치로 비교</b><span class="small">LLM 예측은 고정하고 Ω만 바꿔 포트폴리오 성과를 부트스트랩으로 비교. 가장 엄격한 상대는 변동성으로 만든 He–Litterman Ω.</span></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>같은 LLM 예측에 바꿔 끼우는 Ω</th><th>이 비교가 답하는 질문</th></tr></thead>
+        <tbody>
+          <tr><td>LLM 흩어짐 그대로</td><td>기존 연구의 방식</td></tr>
+          <tr><td>모든 종목 같은 값 (상수)</td><td>흩어짐의 "순서"에 가치가 있나</td></tr>
+          <tr><td>종목끼리 뒤섞은 값</td><td>흩어짐이 그 종목에 대한 정보인가</td></tr>
+          <tr><td>He–Litterman (변동성 비례)</td><td>LLM이 변동성 이상의 정보를 주나 — <strong>핵심 비교</strong></td></tr>
+          <tr><td>Idzorek (신뢰도 → Ω)</td><td>업계 관행보다 나은가</td></tr>
+          <tr><td>보정한 흩어짐</td><td>대응표로 고치면 쓸 만해지나</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="col small">LLM 흩어짐이 상수 Ω와도, He–Litterman Ω와도 구별되지 않으면 "반복 추출 분산은 결정에 쓸 만한 정보가 아니다"라는 결과로 그대로 보고합니다.</p>
+  </section>
+
+  <section id="baselines">
+    <div class="sec-head"><div class="eyebrow">지금까지 결과</div><h2>LLM 없이 돌린 비교군 (2025년, 새 데이터)</h2>
+      <p class="col muted">LLM을 쓰는 전략은 이 비교군들과 같은 기간·같은 종목·같은 τ 고르기 절차로 비교합니다. 연율 Sharpe, 거래비용 10bp, 리밸런싱 26회.</p></div>
+    <figure>
+      <figcaption><span class="ft">시장마다 국면이 다르다</span><span class="fs">파랑은 양수, 빨강은 음수. 진할수록 절댓값이 큼</span></figcaption>
+      <div class="tbl-wrap"><table class="heat" id="t-base"></table></div>
+      <p class="takeaway">한국은 2025년 급등장이라 거의 모든 전략이 높고, 미국은 view 없는 BL이 음수입니다. 어느 시장에서도 일관되게 이기는 전략이 없습니다. 그래서 LLM의 효과는 한 시장이 아니라 네 시장을 묶어서 판단하고, 한국을 뺀 결과도 함께 보고합니다. 모멘텀 BL이 미국 −1.65, 독일 2.16으로 크게 흔들리는 것은 τ가 크게 뽑힌 분기에 한 종목에 비중이 몰렸기 때문입니다.</p>
+    </figure>
+  </section>
+
+  <section id="reviews">
+    <div class="sec-head"><div class="eyebrow">리뷰 대응</div><h2>리뷰 지적별 대응</h2></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>지적</th><th>FI2027의 대응</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>분산이 보정된 불확실성인가, temperature 영향</td><td>크기·순서를 나눠 측정, temperature 3단계, 보정 Ω, 결정 가치로 판정</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>Ω를 고정·다른 방식으로 바꾼 비교</td><td>같은 예측에 Ω 6종</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>BL 없이 LLM 예측만 쓴 포트폴리오</td><td>LLM 예측으로 바로 평균-분산, 상위 10 동일가중</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>표준 BL, 전통 예측기 + BL</td><td>view 없는 BL, 모멘텀·통계·릿지 예측 BL</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>기존 view·신뢰도 구성법과의 차별성</td><td>He–Litterman·Idzorek와 직접 비교, LLM+BL 선행연구 6편 정리</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>생존편향</td><td>시점별 지수 편입으로 매 시점 상위 50</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>출시일 ≠ 학습 컷오프, 정확한 버전</td><td>개발사 문서로 확인한 컷오프만, 모델 리비전 기록</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>유의성 검정, 거래비용·리밸런싱 주기</td><td>블록 부트스트랩, 0·5·10·25bp, 1·2·4주</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>100회 반복의 근거</td><td>20회로 줄이고 5·10·20회 비교, 계산 시간 기록</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>단위 일관성</td><td>"향후 2주 평균 일수익률"로 통일</td><td><span class="chip ok">✓ 반영</span></td></tr>
+          <tr><td>테스트 기간이 짧다</td><td>모델 컷오프 때문에 시장당 16개월이 상한 → 4개 시장으로 보완, 한계로 명시</td><td><span class="chip part">◐ 부분</span></td></tr>
+          <tr><td>LLM이 왜 필요한가, 입력이 숫자뿐</td><td>텍스트는 범위 밖(IJCAI 트랙). 주장을 좁히고, 모멘텀·통계·릿지 예측기를 이겨야만 LLM의 가치로 인정</td><td><span class="chip part">◐ 범위 조정</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="stages">
+    <div class="sec-head"><div class="eyebrow">단계와 판정</div><h2>먼저 작게 판정하고, 통과하면 넓힌다</h2></div>
+    <div class="stages">
+      <div class="stage"><span class="id">F0</span><div><b>준비</b><div class="small muted">WRDS 불러오기, 시점별 종목 선정, 백테스트·워크포워드 코드, 4개 시장 비교군</div></div><span class="chip ok">✓ 완료</span></div>
+      <div class="stage"><span class="id">F1</span><div><b>판정 실험</b> <span class="when">10/10</span><div class="small muted">미국, gpt-oss-20b, 20회, 2024-09 ~ 2025-12. 시점 35개 × 50종목 × 20회 ≈ 3.5만 번 질문 (GPU 1에서 약 6시간)</div></div><span class="chip run">● 진행 중</span></div>
+      <div class="stage"><span class="id">F1.5</span><div><b>코드 보강</b> <span class="when">10/12</span><div class="small muted">Idzorek Ω, 선형 보정 Ω, 릿지 예측 BL, 비중 상한 변형, 모델 리비전·계산 시간 기록</div></div><span class="chip wait">대기</span></div>
+      <div class="stage"><span class="id">F2</span><div><b>본 실험</b> <span class="when">10/31</span><div class="small muted">4개 시장 × 모델 4개 × 프롬프트 2종 + temperature·리밸런싱 주기 실험</div></div><span class="chip wait">F1 통과 시</span></div>
+      <div class="stage"><span class="id">F3</span><div><b>원고</b> <span class="when">11월</span><div class="small muted">Financial Innovation 투고. 저자 구성과 게재료는 F1 통과 후 교신저자와 상의</div></div><span class="chip wait">F1 통과 시</span></div>
+    </div>
+    <h3>F1 판정 기준 (미국, 2025년 구간)</h3>
+    <div class="checks col">
+      <div class="check"><span>LLM 예측의 순위가 실제 다음 2주 수익률 순위와, <strong>모멘텀보다</strong> 더 잘 맞는가</span></div>
+      <div class="check"><span>LLM 흩어짐을 Ω로 쓴 BL이 모멘텀 BL과 동일가중을 부트스트랩 검정에서 이기는가</span></div>
+      <div class="check"><span>LLM 흩어짐 Ω와 상수 Ω 사이에 차이가 있는가</span></div>
+    </div>
+    <p class="col small">b와 c가 모두 아니면 FI 트랙을 접고 IJCAI 트랙에 집중합니다. 하나로 판단하기 어려우면 Gemma 3 27B로 한 번 더 확인합니다.</p>
+  </section>
+
+  <section id="ijcai">
+    <div class="sec-head"><div class="eyebrow">IJCAI와의 경계</div><h2>두 논문이 겹치지 않게</h2>
+      <p class="col muted">IJCAI 2027 트랙도 "LLM 불확실성"을 다룹니다. 중복 투고로 보이지 않도록 질문과 데이터를 나눕니다. 같은 LLM 답 데이터를 두 논문에 함께 쓰지 않습니다.</p></div>
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <thead><tr><th></th><th>FI2027 (이 계획)</th><th>IJCAI2027</th></tr></thead>
+        <tbody>
+          <tr><td>질문</td><td class="new">LLM 의견과 흩어짐이 4개 시장 포트폴리오를 개선하는가</td><td class="old">LLM의 여러 불확실성 신호는 무엇에 반응하고, 어느 것이 결정에 쓸 만한가</td></tr>
+          <tr><td>불확실성 신호</td><td class="new">반복 답의 흩어짐 하나</td><td class="old">반복 답, 직접 물은 범위, 토큰 확률, 질문 바꿔 묻기, 모델 간 차이 — 5종</td></tr>
+          <tr><td>입력</td><td class="new">숫자만</td><td class="old">숫자 + 공시·뉴스 텍스트, 회사명 가리기, 가짜 공시</td></tr>
+          <tr><td>데이터</td><td class="new">WRDS 4개 시장, 2024-09 ~ 2025-12</td><td class="old">미국, 2025-07 ~ 2026-09 (예정)</td></tr>
+          <tr><td>기여</td><td class="new">금융 실증</td><td class="old">AI 방법론</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="limits">
+    <div class="sec-head"><div class="eyebrow">한계와 열린 질문</div><h2>미리 알고 가는 것</h2></div>
+    <div class="gloss">
+      <div class="term"><b>기간</b><span>시장당 16개월은 짧습니다. 네 시장을 묶어 보완하지만 해소는 아닙니다.</span></div>
+      <div class="term"><b>숫자 입력</b><span>지금까지 숫자만 준 LLM은 모멘텀을 따라 했습니다. 모델을 바꿔도 같을 가능성이 큽니다. F1이 이것을 가장 먼저 확인합니다.</span></div>
+      <div class="term"><b>경계 모델</b><span>Gemma 3의 컷오프(2024-08)는 테스트 시작 직전입니다. 다른 모델과 결과가 크게 다르면 따로 표시합니다.</span></div>
+      <div class="term"><b>추론 모델</b><span>gpt-oss는 답하기 전에 생각하는 모델이라 흩어짐에 "생각 경로의 차이"가 섞입니다. 비추론 모델과 나눠 보고합니다.</span></div>
+    </div>
+    <details class="col"><summary>가이드 점검 (연구 가이드 기준)</summary>
+      <div class="stack small" style="margin-top:8px">
+        <p><strong>한 문장 주장:</strong> 시점 기준 종목과 4개 시장에서, LLM 반복 답의 흩어짐이 변동성 기반 Ω와 상수 Ω보다 포트폴리오 결정에 가치가 있는지 검증하고, 없으면 그대로 보고한다.</p>
+        <p><strong>충족:</strong> 문제부터(리뷰·사전 점검의 실패에서 출발), 누출 점검(시점별 종목·문서화된 컷오프·과거 데이터만으로 보정), 부정적 결과도 결과(판정 기준을 미리 정함), 주장을 검증하는 실험(리뷰 지적마다 실험 배정). <strong>미충족:</strong> 재현성(실행 전), 기간 한계(명시만 가능).</p>
+        <p><strong>세 질문:</strong> 무엇을 주장하는가 — 위 한 문장. 실험이 검증하는가 — Ω만 바꾼 비교가 직접 검증. 회의적 독자가 납득하는가 — "16개월은 짧다", "그냥 변동성 아니냐"에 각각 네 시장 결과와 He–Litterman 비교로 답한다.</p>
+      </div>
+    </details>
+  </section>
+</div>
+<div id="tip" role="tooltip" hidden></div>
+
+<script>
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const tip = document.getElementById("tip");
+  function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function txt(parent, x, y, s, cls, anchor) { const t = el("text", { x, y, class: cls || "", "text-anchor": anchor || "start" }, parent); t.textContent = s; return t; }
+  function bindTip(node, html) {
+    node.setAttribute("tabindex", "0");
+    const show = (ev) => { tip.innerHTML = html; tip.hidden = false; move(ev); };
+    const move = (ev) => {
+      let x, y;
+      if (ev && ev.clientX !== undefined) { x = ev.clientX; y = ev.clientY; }
+      else { const r = node.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top; }
+      const w = tip.offsetWidth, h = tip.offsetHeight;
+      tip.style.left = Math.min(window.innerWidth - w - 8, Math.max(8, x + 12)) + "px";
+      tip.style.top = Math.max(8, y - h - 12) + "px";
+    };
+    node.addEventListener("pointerenter", show); node.addEventListener("pointermove", move);
+    node.addEventListener("pointerleave", () => (tip.hidden = true));
+    node.addEventListener("focus", show); node.addEventListener("blur", () => (tip.hidden = true));
+  }
+  const f2 = (v) => (v >= 0 ? "" : "−") + Math.abs(v).toFixed(2);
+  const pct = (v) => Math.round(v * 100) + "%";
+
+  /* Dumbbell: rows [{label, a, b}], a = before/past (orange), b = after/next (blue) */
+  function dumbbell(id, rows, o) {
+    const W = 640, L = o.left || 130, R = 26, T = 26, rowH = 32, H = T + rows.length * rowH + 30;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.aria });
+    const x = (v) => L + (v - o.min) / (o.max - o.min) * (W - L - R);
+    o.ticks.forEach((t) => {
+      el("line", { x1: x(t), x2: x(t), y1: T - 8, y2: H - 26, class: "grid" }, svg);
+      txt(svg, x(t), H - 10, o.fmt ? o.fmt(t) : String(t), "num", "middle");
+    });
+    if (o.zero !== undefined) el("line", { x1: x(o.zero), x2: x(o.zero), y1: T - 8, y2: H - 26, class: "axis" }, svg);
+    if (o.target !== undefined) {
+      el("line", { x1: x(o.target), x2: x(o.target), y1: T - 14, y2: H - 26, class: "target" }, svg);
+      txt(svg, x(o.target), T - 16, o.targetLabel, "num", "end");
+    }
+    rows.forEach((r, i) => {
+      const y = T + i * rowH + rowH / 2;
+      txt(svg, L - 12, y + 4, r.label, "lbl", "end");
+      el("line", { x1: x(r.a), x2: x(r.b), y1: y, y2: y, class: "conn" }, svg);
+      el("circle", { cx: x(r.a), cy: y, r: 5.5, class: "dot-a" }, svg);
+      el("circle", { cx: x(r.b), cy: y, r: 5.5, class: "dot-b" }, svg);
+      const lab = o.endLabel ? o.endLabel(r) : null;
+      if (lab) { const right = r.b >= r.a; txt(svg, x(r.b) + (right ? 10 : -10), y + 4, lab, "num", right ? "start" : "end"); }
+      const hit = el("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, class: "hit" }, svg);
+      bindTip(hit, `<b>${r.label}</b><br>${o.aName}: ${o.fmtTip(r.a)}<br>${o.bName}: ${o.fmtTip(r.b)}`);
+    });
+    document.getElementById(id).appendChild(svg);
+    if (o.table) {
+      const t = document.getElementById(o.table);
+      t.innerHTML = `<thead><tr><th>${o.rowName || "모델"}</th><th class="n">${o.aName}</th><th class="n">${o.bName}</th></tr></thead><tbody>` +
+        rows.map((r) => `<tr><td>${r.label}</td><td class="n">${o.fmtTip(r.a)}</td><td class="n">${o.fmtTip(r.b)}</td></tr>`).join("") + "</tbody>";
+    }
+  }
+
+  // EAAI reported vs corrected (pilot, test 2024-09..2025-06)
+  dumbbell("c-eaai", [
+    { label: "동일가중", a: 0.8937, b: 0.933 },
+    { label: "평균-분산 (MVO)", a: 0.2793, b: 1.520 },
+    { label: "BL-Llama", a: 1.2286, b: -0.121 },
+    { label: "BL-Qwen", a: 1.0624, b: -0.039 },
+    { label: "BL-Gemma", a: 0.6386, b: -0.157 },
+    { label: "BL-GPT-4o-mini", a: 0.3619, b: -0.023 },
+  ], { min: -0.4, max: 1.8, ticks: [-0.4, 0, 0.4, 0.8, 1.2, 1.6], zero: 0, fmt: f2, fmtTip: f2, aName: "EAAI 보고", bName: "바로잡은 뒤",
+       rowName: "전략", aria: "EAAI 보고 Sharpe와 계산을 바로잡은 뒤 Sharpe 비교", table: "t-eaai", left: 140, endLabel: (r) => f2(r.b) });
+
+  // momentum vs next (pilot)
+  dumbbell("c-mom", [
+    ["GPT-4o-mini", 0.905, 0.037], ["GPT-4.1", 0.897, 0.021], ["GPT-4o", 0.891, 0.029], ["GPT-4.1-mini", 0.875, 0.014],
+    ["o3", 0.827, 0.013], ["Gemma-7B", 0.788, 0.032], ["Qwen2-7B", 0.754, 0.027], ["Llama-3.1-8B", 0.722, 0.012],
+  ].map(([label, a, b]) => ({ label, a, b })), { min: 0, max: 1, ticks: [0, 0.25, 0.5, 0.75, 1], fmt: (v) => v.toFixed(2), fmtTip: (v) => v.toFixed(3),
+       aName: "과거 10일과의 순위 상관", bName: "다음 2주와의 순위 상관", aria: "LLM 예측과 과거 수익률, 미래 수익률의 순위 상관", table: "t-mom" });
+
+  // coverage
+  dumbbell("c-cov", [
+    ["GPT-4o-mini", 0.322, 0.878], ["GPT-4o", 0.229, 0.808], ["GPT-4.1-mini", 0.145, 0.802],
+    ["Llama-3.1-8B", 0.695, 0.943], ["Qwen2-7B", 0.182, 0.906], ["Gemma-7B", 0.628, 0.827],
+  ].map(([label, a, b]) => ({ label, a, b })), { min: 0, max: 1, ticks: [0, 0.25, 0.5, 0.75, 1], fmt: pct, fmtTip: pct, target: 0.95, targetLabel: "목표 95%",
+       aName: "흩어짐만", bName: "흩어짐 + 운", aria: "95% 범위 커버리지, 운을 넣기 전과 후", table: "t-cov", left: 112 });
+
+  // shape
+  dumbbell("c-shape", [
+    ["GPT-4o", 0.347, 0.215], ["GPT-4.1-mini", 0.297, 0.180], ["GPT-4o-mini", 0.269, 0.144],
+    ["Llama-3.1-8B", 0.182, 0.060], ["Qwen2-7B", 0.173, 0.057], ["Gemma-7B", -0.012, 0.003],
+  ].map(([label, a, b]) => ({ label, a, b })), { min: -0.05, max: 0.4, ticks: [0, 0.1, 0.2, 0.3, 0.4], zero: 0, fmt: (v) => v.toFixed(1), fmtTip: (v) => v.toFixed(3),
+       aName: "그대로", bName: "변동성 효과 뺀 뒤", aria: "흩어짐과 실제 오차의 순위 상관, 변동성 효과를 빼기 전과 후", table: "t-shape", left: 112 });
+
+  /* Timeline */
+  (function () {
+    const W = 760, H = 150, L = 20, R = 20;
+    const t0 = Date.UTC(2023, 5, 1), t1 = Date.UTC(2026, 0, 31);
+    const x = (y, m, d) => L + (Date.UTC(y, m - 1, d || 1) - t0) / (t1 - t0) * (W - L - R);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "기간 구성 타임라인" });
+    el("line", { x1: L, x2: W - R, y1: 96, y2: 96, class: "axis" }, svg);
+    [[2023, 7], [2024, 1], [2024, 7], [2025, 1], [2025, 7], [2026, 1]].forEach(([y, m]) => {
+      el("line", { x1: x(y, m), x2: x(y, m), y1: 92, y2: 100, class: "axis" }, svg);
+      txt(svg, x(y, m), 116, `${y}.${String(m).padStart(2, "0")}`, "num", "middle");
+    });
+    // context bar: covariance history
+    const ctx = el("rect", { x: x(2023, 6), y: 64, width: x(2024, 9) - x(2023, 6), height: 18, rx: 4, fill: "var(--rule)" }, svg);
+    txt(svg, x(2023, 6) + 8, 77, "공분산 추정용 과거 데이터 (126거래일 창)", "", "start");
+    bindTip(ctx, "공분산·변동성은 각 시점 직전 126거래일로 추정합니다. 이 부분은 LLM과 무관합니다.");
+    const warm = el("rect", { x: x(2024, 9), y: 64, width: x(2025, 1) - x(2024, 9) - 2, height: 18, rx: 4, fill: "var(--s2)", opacity: 0.85 }, svg);
+    bindTip(warm, "연습 기간 2024-09 ~ 12: τ 첫 선택의 근거. 성과는 보고하지 않습니다.");
+    const rep = el("rect", { x: x(2025, 1), y: 64, width: x(2026, 1) - x(2025, 1), height: 18, rx: 4, fill: "var(--s1)" }, svg);
+    bindTip(rep, "보고 구간 2025-01 ~ 12: 리밸런싱 26회 × 4개 시장");
+    txt(svg, (x(2024, 9) + x(2025, 1)) / 2, 56, "연습", "lbl", "middle");
+    txt(svg, (x(2025, 1) + x(2026, 1)) / 2, 56, "보고 구간 (2025년)", "lbl", "middle");
+    // markers
+    const mk = (xx, label, sub, y) => { el("line", { x1: xx, x2: xx, y1: y + 6, y2: 96, class: "target" }, svg); txt(svg, xx, y, label, "lbl", "middle"); if (sub) txt(svg, xx, y + 14, sub, "num", "middle"); };
+    mk(x(2024, 8, 31), "모델 컷오프 ≤ 2024-08", null, 20);
+    mk(x(2025, 12, 31), "데이터 끝", "2025-12-31", 20);
+    txt(svg, x(2024, 3), 138, "Llama 3.3: 2023-12 · gpt-oss: 2024-06 · Gemma 3: 2024-08", "num", "middle");
+    document.getElementById("c-time").appendChild(svg);
+  })();
+
+  /* Walk-forward */
+  (function () {
+    const W = 760, L = 96, R = 70, T = 14, rowH = 34;
+    const q = [["2025 1분기", 1, 1.0], ["2025 2분기", 4, 0.1], ["2025 3분기", 7, 0.022], ["2025 4분기", 10, 0.01]];
+    const H = T + q.length * rowH + 30;
+    const t0 = Date.UTC(2024, 8, 1), t1 = Date.UTC(2026, 0, 1);
+    const x = (y, m) => L + (Date.UTC(y, m - 1, 1) - t0) / (t1 - t0) * (W - L - R);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "분기별 워크포워드 창" });
+    [[2024, 9], [2025, 1], [2025, 4], [2025, 7], [2025, 10], [2026, 1]].forEach(([y, m]) => {
+      el("line", { x1: x(y, m), x2: x(y, m), y1: T - 4, y2: H - 24, class: "grid" }, svg);
+      txt(svg, x(y, m), H - 8, `${y}.${String(m).padStart(2, "0")}`, "num", "middle");
+    });
+    q.forEach(([name, m, tau], i) => {
+      const y = T + i * rowH;
+      txt(svg, L - 10, y + 20, name, "lbl", "end");
+      const past = el("rect", { x: x(2024, 9), y: y + 8, width: x(2025, m) - x(2024, 9) - 2, height: 16, rx: 4, fill: "var(--s2)", opacity: 0.8 }, svg);
+      const use = el("rect", { x: x(2025, m), y: y + 8, width: x(m === 10 ? 2026 : 2025, m === 10 ? 1 : m + 3) - x(2025, m), height: 16, rx: 4, fill: "var(--s1)" }, svg);
+      txt(svg, x(m === 10 ? 2026 : 2025, m === 10 ? 1 : m + 3) + 8, y + 20, "τ = " + tau, "num", "start");
+      bindTip(past, `${name}의 τ를 고를 때 보는 기간: 2024-09부터 ${name} 직전까지`);
+      bindTip(use, `${name}에 쓴 τ = ${tau} (미국, 모멘텀 BL 예시)`);
+    });
+    document.getElementById("c-walk").appendChild(svg);
+  })();
+
+  /* Noise illustration: number line in % (avg daily return over 2 weeks) */
+  (function () {
+    const W = 760, H = 150, L = 30, R = 30, min = -1.0, max = 1.0;
+    const x = (v) => L + (v - min) / (max - min) * (W - L - R);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "기대수익률, LLM 의견, 운의 폭, 실현 수익률을 한 줄에 표시" });
+    el("line", { x1: L, x2: W - R, y1: 110, y2: 110, class: "axis" }, svg);
+    [-1, -0.5, 0, 0.5, 1].forEach((t) => { el("line", { x1: x(t), x2: x(t), y1: 106, y2: 114, class: "axis" }, svg); txt(svg, x(t), 132, (t > 0 ? "+" : t < 0 ? "−" : "") + Math.abs(t).toFixed(1) + "%", "num", "middle"); });
+    // noise band (±0.63 around true 0.10)
+    const band = el("rect", { x: x(0.10 - 0.63), y: 74, width: x(0.10 + 0.63) - x(0.10 - 0.63), height: 22, rx: 4, fill: "var(--s2)", opacity: 0.18 }, svg);
+    txt(svg, x(0.10 - 0.63) + 6, 89, "운의 폭 (2주 평균의 자연스러운 흔들림, 약 ±0.6%)", "", "start");
+    bindTip(band, "변동성이 일 2%인 주식이면 2주(10일) 평균수익률은 운만으로도 약 ±0.6% 흔들립니다.");
+    // view band
+    const vb = el("rect", { x: x(0.05), y: 40, width: x(0.15) - x(0.05), height: 22, rx: 4, fill: "var(--s1)", opacity: 0.35 }, svg);
+    el("circle", { cx: x(0.10), cy: 51, r: 5.5, class: "dot-b" }, svg);
+    txt(svg, x(0.15) + 10, 55, "LLM 의견 0.10% ± 0.05% (20번 답의 흩어짐 = Ω)", "lbl", "start");
+    bindTip(vb, "LLM 의견의 불확실성 Ω는 이 좁은 폭입니다. 운은 포함하지 않습니다.");
+    // realized
+    const rz = el("circle", { cx: x(-0.40), cy: 110, r: 6, class: "dot-a" }, svg);
+    txt(svg, x(-0.40), 98, "실제 결과 −0.40%", "lbl", "middle");
+    bindTip(rz, "실제 2주 평균. LLM 의견에서 0.5% 빗나갔지만 대부분은 운입니다.");
+    txt(svg, x(0.10), 22, "진짜 기대수익률(실력값)은 볼 수 없음", "num", "middle");
+    document.getElementById("c-noise").appendChild(svg);
+  })();
+
+  /* Baseline heat table */
+  (function () {
+    const cols = [["ew", "동일가중"], ["cap", "시가총액"], ["mvo", "평균-분산"], ["prior", "view 없는 BL"], ["momtop", "모멘텀 상위 10"], ["mombl", "모멘텀 BL"], ["stat", "통계 BL"]];
+    const rows = [
+      ["미국", [0.857, 0.789, 0.536, -0.118, 0.710, -1.651, 0.506]],
+      ["한국", [2.234, 2.596, 1.409, 2.237, 1.149, 2.226, 1.797]],
+      ["일본", [1.236, 1.138, 0.616, 1.578, 0.412, 1.560, 1.137]],
+      ["독일", [0.915, 0.766, 1.903, -0.105, 1.197, 2.157, 1.917]],
+    ];
+    const t = document.getElementById("t-base");
+    let h = "<thead><tr><th>시장</th>" + cols.map((c) => `<th class="n">${c[1]}</th>`).join("") + "</tr></thead><tbody>";
+    rows.forEach(([m, v]) => {
+      h += `<tr><td>${m}</td>` + v.map((x, i) => {
+        const p = Math.min(1, Math.abs(x) / 2.6) * 55;
+        const col = x >= 0 ? "var(--div-pos)" : "var(--div-neg)";
+        return `<td class="n" data-tip="${m} · ${cols[i][1]}: Sharpe ${f2(x)}" style="background: color-mix(in oklab, ${col} ${p.toFixed(0)}%, var(--div-mid))">${f2(x)}</td>`;
+      }).join("") + "</tr>";
+    });
+    t.innerHTML = h + "</tbody>";
+    t.querySelectorAll("td[data-tip]").forEach((td) => bindTip(td, td.dataset.tip));
+  })();
+})();
+</script>

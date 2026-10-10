@@ -1,0 +1,17 @@
+{
+  "revision": "02ede29",
+  "args": {
+    "market": "US",
+    "model_tag": "gptoss20b",
+    "prompt": "A",
+    "start": "2024-09-01",
+    "end": "2025-12-31",
+    "top_n": 50,
+    "burn_in": 2,
+    "workers": 40,
+    "n_boot": 2000
+  },
+  "n_jobs": 926,
+  "finished": "2026-10-10 11:47:59",
+  "elapsed_s": 287.8
+}

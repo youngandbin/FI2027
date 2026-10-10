@@ -1,0 +1,65 @@
+% Financial Innovation (Springer) research article draft.
+% Built with the standard article class so it compiles locally; port to the Springer Nature
+% LaTeX template (sn-jnl, sn-basic reference style) before submission. See README.md.
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs,multirow,makecell}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[round,authoryear]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{lineno}
+
+\onehalfspacing
+\linenumbers
+
+% Draft markers: every \todo must be resolved before submission (grep '\\todo').
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\pending}[1]{\textcolor{blue}{[pending: #1]}}
+
+\newcommand{\Om}{\bm{\Omega}}
+\newcommand{\Sig}{\bm{\Sigma}}
+\newcommand{\bq}{\bm{q}}
+\newcommand{\bmu}{\bm{\mu}}
+\newcommand{\bw}{\bm{w}}
+
+\title{Repeated LLM Forecasts as Black--Litterman Views: \\ A Point-in-Time Re-examination of the Dispersion-to-Confidence Mapping}
+
+\author{%
+  Youngbin Lee\textsuperscript{1,*} \and Yejin Kim\textsuperscript{2,*} \and Juhyeong Kim\textsuperscript{3} \and Suin Kim\textsuperscript{1} \and
+  Yoontae Hwang\textsuperscript{4,\dag} \and Yongjae Lee\textsuperscript{5,\dag}\\[4pt]
+  \small \textsuperscript{1}Elice, Seoul, Republic of Korea \quad
+  \textsuperscript{2}Meritz Fire \& Marine Insurance, Seoul, Republic of Korea \quad
+  \textsuperscript{3}\todo{affiliation} \\
+  \small \textsuperscript{4}Pusan National University \quad
+  \textsuperscript{5}UNIST \quad
+  \textsuperscript{*}Equal contribution \quad \textsuperscript{\dag}Corresponding authors \\
+  \small \todo{confirm author list and affiliations for the FI submission}
+}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{sections/0_abstract}
+\input{sections/1_introduction}
+\input{sections/2_related}
+\input{sections/3_framework}
+\input{sections/4_data_design}
+\input{sections/5_results}
+\input{sections/6_discussion}
+\input{sections/7_conclusion}
+\input{sections/8_declarations}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/9_appendix}
+
+\end{document}

@@ -6,12 +6,23 @@ tau is then chosen per calendar quarter from the expanding window of earlier out
 periods (initial window = the first `burn_in` quarters); the selected-tau weight paths are spliced
 and evaluated with transaction costs. The calibrated-Omega map is likewise fitted on earlier pairs only.
 
-Output: results/{market}/{model_tag}_{prompt}/ {performance.csv, tau_path.csv, calibration.csv,
-n_sensitivity.csv, bootstrap.csv, pairs.csv, weights_*.csv}
+Specifications (label suffixes), all with the same walk-forward tau:
+  (none)     EAAI mapping, Omega at its raw level
+  _lv        Omega rescaled to the He-Litterman level tau*mean(Sigma_ii), so Omega variants differ only in shape
+  _cap10     10% per-asset weight cap in the optimizer
+  _lv_cap10  both
+  _qc        diagnostic: views centred on the prior's cross-sectional mean (common bias of q removed)
+  _d1.5 / _d3.5 / _dest   risk aversion delta = 1.5, 3.5, or the trailing 252-day estimate (default 2.5),
+             on the raw and the _lv_cap10 specifications
+
+Output: results/{market}/{model_tag}_{prompt}/ {performance.csv, omega_matrix.csv, tau_path.csv, delta_path.csv,
+calibration.csv, n_sensitivity.csv, bootstrap.csv, pairs.csv, weights_*.csv, run_meta.json}
 """
 import argparse
 import json
 import os
+import subprocess
+import time
 
 for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
     os.environ[_v] = "1"
@@ -25,7 +36,11 @@ from blx import calibration as C, engine as E, metrics as M, wrds
 from paths import RESULTS_DIR, VIEWS_DIR
 
 TAU_GRID = [float(x) for x in np.logspace(-3, 1, 13)]
-OMEGAS = ["empirical", "constant", "shuffle", "he_litterman", "calibrated"]
+OMEGAS = ["empirical", "constant", "shuffle", "he_litterman", "calibrated", "linear"]
+SPECS = {"": {}, "_lv": dict(omega_level="hl"), "_cap10": dict(wmax=0.1), "_lv_cap10": dict(omega_level="hl", wmax=0.1)}
+DELTAS = {"_d1.5": 1.5, "_d3.5": 3.5, "_dest": None}
+DELTA_OMEGAS = ["empirical", "constant", "he_litterman", "linear"]
+CAP_BASELINES = ["mvo_hist", "prior", "mom_bl", "stat_bl", "llm_mvo"]
 BASELINES = ["ew", "cap", "mvo_hist", "prior", "mom_topk", "mom_bl", "stat_bl", "llm_mvo", "llm_topk"]
 TAU_STRATS = {"mom_bl", "stat_bl"}
 PSI_GRID = [0.0, 0.0005, 0.001, 0.0025]
@@ -56,20 +71,34 @@ def _init(market, model_tag, prompt, top_n, start, end):
 def _job(cd):
     cfg = E.Config(**cd)
     eng, periods, views = _G["eng"], _G["periods"], _G["views"]
-    if cfg.omega == "calibrated" and cfg.strategy == "bl":
-        pairs = eng.forecast_pairs(views, periods)
-        cfg.calib = expanding_calib(pairs, periods)
+    if cfg.omega in ("calibrated", "linear") and cfg.strategy == "bl":
+        if "calib" not in _G:
+            pairs = eng.forecast_pairs(views, periods)
+            _G["calib"] = {"calibrated": expanding_calib(pairs, periods, C.fit_calibration_map),
+                           "linear": expanding_calib(pairs, periods, C.fit_linear_map)}
+        cfg.calib = _G["calib"][cfg.omega]
     w = eng.weights(cfg, views, periods)
     return cd, w
 
 
-def expanding_calib(pairs: pd.DataFrame, periods, min_pairs: int = 200) -> dict:
-    """period -> calibration map fitted on pairs whose decision period is strictly earlier."""
+def expanding_calib(pairs: pd.DataFrame, periods, fitter, min_pairs: int = 200) -> dict:
+    """period -> calibration map fitted on pairs whose decision period is strictly earlier
+    (their holding period ends by the decision date p[1], so no later realized return is used)."""
     out = {}
     for i, p in enumerate(periods):
         earlier = pairs[pairs["period"] < p[0]]
-        out[p] = C.fit_calibration_map(earlier) if len(earlier) >= min_pairs else None
+        out[p] = fitter(earlier) if len(earlier) >= min_pairs else None
     return out
+
+
+def git_revision() -> str:
+    try:
+        root = str(RESULTS_DIR.parent)
+        rev = subprocess.run(["git", "-C", root, "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
+        dirty = subprocess.run(["git", "-C", root, "status", "--porcelain", "--", "src"], capture_output=True, text=True).stdout.strip()
+        return rev + ("-dirty" if dirty else "")
+    except Exception:
+        return "unknown"
 
 
 def quarter_of(ps: str) -> str:
@@ -122,24 +151,50 @@ def main():
     _init(args.market, args.model_tag, args.prompt, args.top_n, args.start, args.end)
     eng, periods, views, rf = _G["eng"], _G["periods"], _G["views"], _G["eng"].md.rf
 
+    t_start = time.time()
     jobs = []
-    for s in BASELINES:
-        if s.startswith("llm") and views is None:
-            continue
-        if s in TAU_STRATS:
-            jobs += [dict(strategy=s, tau=t, label=s) for t in TAU_GRID]
+
+    def add(strategy, label, **kw):
+        if strategy in TAU_STRATS or strategy == "bl":
+            jobs.extend(dict(strategy=strategy, tau=t, label=label, **kw) for t in TAU_GRID)
         else:
-            jobs.append(dict(strategy=s, label=s))
+            jobs.append(dict(strategy=strategy, label=label, **kw))
+
+    for s_ in BASELINES:
+        if s_.startswith("llm") and views is None:
+            continue
+        add(s_, s_)
+        if s_ in CAP_BASELINES:
+            add(s_, f"{s_}_cap10", wmax=0.1)
+    for dsuf, dval in DELTAS.items():
+        for s_ in ("prior", "mom_bl", "stat_bl"):
+            add(s_, f"{s_}{dsuf}", delta=dval)
+        add("prior", f"prior_cap10{dsuf}", delta=dval, wmax=0.1)
     if views is not None:
-        for om in OMEGAS:
-            jobs += [dict(strategy="bl", omega=om, tau=t, label=f"bl_{om}") for t in TAU_GRID]
+        for suf, kw in SPECS.items():
+            for om in OMEGAS:
+                if om == "he_litterman" and "lv" in suf:
+                    continue   # already at the He-Litterman level
+                add("bl", f"bl_{om}{suf}", omega=om, **kw)
+        for dsuf, dval in DELTAS.items():
+            for om in DELTA_OMEGAS:
+                add("bl", f"bl_{om}{dsuf}", omega=om, delta=dval)
+                if om != "linear":
+                    kw = SPECS["_cap10"] if om == "he_litterman" else SPECS["_lv_cap10"]
+                    add("bl", f"bl_{om}{'_cap10' if om == 'he_litterman' else '_lv_cap10'}{dsuf}", omega=om, delta=dval, **kw)
+        for om in ("empirical", "constant", "shuffle", "he_litterman"):
+            add("bl", f"bl_{om}_qc", omega=om, q_center=True)
+            if om == "he_litterman":
+                add("bl", f"bl_{om}_cap10_qc", omega=om, q_center=True, **SPECS["_cap10"])
+            else:
+                add("bl", f"bl_{om}_lv_cap10_qc", omega=om, q_center=True, **SPECS["_lv_cap10"])
         for n in N_GRID:
             for seed in range(3):
-                jobs += [dict(strategy="bl", omega="empirical", tau=t, n_draws=n, seed=seed, label=f"bl_empirical_N{n}") for t in TAU_GRID]
+                add("bl", f"bl_empirical_N{n}", omega="empirical", n_draws=n, seed=seed)
     print(f"jobs: {len(jobs)}")
     with ProcessPoolExecutor(max_workers=args.workers, initializer=_init,
                              initargs=(args.market, args.model_tag, args.prompt, args.top_n, args.start, args.end)) as ex:
-        res = list(ex.map(_job, jobs, chunksize=2))
+        res = list(ex.map(_job, jobs, chunksize=4))
 
     # group by label (+ n/seed) and apply walk-forward tau where a grid exists
     groups = {}
@@ -172,6 +227,15 @@ def main():
     main_tbl.to_csv(out / "performance.csv", index=False)
     perf[perf.n_draws.notna() & (perf.psi == 0.001)].to_csv(out / "n_sensitivity.csv", index=False)
     pd.DataFrame(tau_rows).to_csv(out / "tau_path.csv", index=False)
+    if views is not None:
+        sh = main_tbl.set_index("label")["Sharpe_ann"]
+        hl_label = lambda om, spec: f"bl_{om}{spec.replace('_lv', '') if om == 'he_litterman' else spec}"
+        mat = pd.DataFrame({spec or "raw": {om: sh.get(hl_label(om, spec), np.nan) for om in OMEGAS} for spec in SPECS})
+        mat.to_csv(out / "omega_matrix.csv")
+    dl = []
+    for p in periods:
+        dl.append(dict(period=p[0], delta_est=eng._delta(p, eng.universe(p), None, E.Config(delta=None))))
+    pd.DataFrame(dl).to_csv(out / "delta_path.csv", index=False)
     for label, w in weights_main.items():
         pd.DataFrame({p[0]: s for p, s in w.items()}).T.to_csv(out / f"weights_{label}.csv")
 
@@ -189,12 +253,25 @@ def main():
                 cal.append(dict(model=args.model_tag, prompt=args.prompt, n_draws=n or "all", seed=seed, **m))
         pd.DataFrame(cal).to_csv(out / "calibration.csv", index=False)
 
-    comparisons = [("bl_empirical", "ew"), ("bl_empirical", "mom_bl"), ("bl_empirical", "mvo_hist"), ("bl_empirical", "bl_constant"),
-                   ("bl_empirical", "bl_shuffle"), ("bl_calibrated", "bl_constant"), ("bl_calibrated", "bl_empirical"),
-                   ("llm_topk", "mom_topk"), ("llm_topk", "ew"), ("bl_empirical", "stat_bl")]
+    comparisons = [("bl_empirical", "ew"), ("bl_empirical", "mom_bl"), ("bl_empirical", "mvo_hist"), ("bl_empirical", "stat_bl"),
+                   ("llm_topk", "mom_topk"), ("llm_topk", "ew")]
+    for spec in SPECS:
+        hl = f"bl_he_litterman{spec.replace('_lv', '')}"
+        comparisons += [(f"bl_empirical{spec}", f"bl_constant{spec}"), (f"bl_empirical{spec}", hl), (f"bl_empirical{spec}", f"bl_shuffle{spec}"),
+                        (f"bl_calibrated{spec}", f"bl_constant{spec}"), (f"bl_linear{spec}", f"bl_constant{spec}"), (f"bl_linear{spec}", hl)]
+    comparisons += [("bl_empirical_qc", "bl_constant_qc"), ("bl_empirical_qc", "bl_he_litterman_qc"), ("bl_empirical_qc", "bl_empirical"),
+                    ("bl_empirical_lv_cap10_qc", "bl_constant_lv_cap10_qc"), ("bl_empirical_lv_cap10_qc", "bl_he_litterman_cap10_qc"),
+                    ("bl_empirical_lv_cap10_qc", "bl_empirical_lv_cap10")]
+    comparisons += [("bl_empirical_lv_cap10", "ew"), ("bl_empirical_lv_cap10", "mom_bl_cap10"), ("bl_empirical_lv_cap10", "prior_cap10")]
+    for dsuf in DELTAS:
+        comparisons += [(f"bl_empirical{dsuf}", f"bl_constant{dsuf}"), (f"bl_empirical{dsuf}", f"bl_he_litterman{dsuf}"),
+                        (f"bl_empirical_lv_cap10{dsuf}", f"bl_constant_lv_cap10{dsuf}"), (f"bl_empirical_lv_cap10{dsuf}", f"bl_he_litterman_cap10{dsuf}")]
     boots = [dict(a=a, b=b, **M.bootstrap_sharpe_diff(nets_main[a], nets_main[b], rf, n_boot=args.n_boot))
              for a, b in comparisons if a in nets_main and b in nets_main]
     pd.DataFrame(boots).to_csv(out / "bootstrap.csv", index=False)
+    (out / "run_meta.json").write_text(json.dumps(dict(revision=git_revision(), args=vars(args), n_jobs=len(jobs),
+                                                       finished=time.strftime("%Y-%m-%d %H:%M:%S"),
+                                                       elapsed_s=round(time.time() - t_start, 1)), indent=2))
     print(main_tbl[["label", "n_rebalances", "Sharpe_ann", "CAGR", "std_ann", "MDD", "max_weight"]].round(3).to_string(index=False))
     if boots:
         print(pd.DataFrame(boots).round(3).to_string(index=False))

@@ -19,12 +19,13 @@ from .wrds import MarketData
 LAMBDA = 0.1  # objective: w'Sigma w - LAMBDA * w'mu (EAAI convention)
 
 
-def mvo_long_only(mu: np.ndarray, sigma: np.ndarray, lam: float = LAMBDA) -> np.ndarray:
+def mvo_long_only(mu: np.ndarray, sigma: np.ndarray, lam: float = LAMBDA, wmax: float | None = None) -> np.ndarray:
     n = len(mu)
     w0 = np.ones(n) / n
+    ub = 1.0 if wmax is None else max(wmax, 1.0 / n)
     res = minimize(lambda w: w @ sigma @ w - lam * w @ mu, w0, method="SLSQP",
                    jac=lambda w: 2 * sigma @ w - lam * mu,
-                   bounds=[(0.0, 1.0)] * n, constraints=[{"type": "eq", "fun": lambda w: w.sum() - 1.0}],
+                   bounds=[(0.0, ub)] * n, constraints=[{"type": "eq", "fun": lambda w: w.sum() - 1.0}],
                    options={"maxiter": 500, "ftol": 1e-12})
     w = np.clip(res.x, 0, None)
     return w / w.sum()
@@ -47,6 +48,13 @@ class Config:
       stat_bl  q = trailing sigma_window mean, Omega = Var(mean) = Sigma_ii / sigma_window
       llm_*    LLM q without BL: long-only MVO on q, or equal-weight top-k by q
       mom_topk equal-weight top-k by trailing mean return
+    omega_level: raw  Omega as produced by make_omega
+                 hl   rescaled so that its cross-sectional mean equals tau * mean(Sigma_ii), the He-Litterman
+                      level; only the SHAPE across assets then differs between Omega variants
+    wmax: per-asset weight cap for the optimizer (None = long-only, no cap)
+    q_center: diagnostic; shift the LLM views so their cross-sectional mean equals that of the prior Pi
+              (removes the common level bias of q and keeps only its cross-sectional ranking information)
+    delta: fixed risk aversion, or None = trailing 252-day estimate E[r_m - rf] / Var(r_m)
     """
     strategy: str = "bl"
     omega: str = "empirical"
@@ -58,6 +66,9 @@ class Config:
     topk: int = 10
     mom_window: int = 10
     seed: int = 0
+    omega_level: str = "raw"
+    wmax: float | None = None
+    q_center: bool = False
     calib: object = field(default=None, repr=False)   # callable(s2)->Omega_ii, or dict period->callable
     label: str = ""
 
@@ -102,7 +113,7 @@ class Engine:
         hist = self.hist(period, tick, cfg.sigma_window)
         sigma = bl.sigma_estimate(hist, cfg.sigma_method)
         if cfg.strategy == "mvo_hist":
-            return pd.Series(mvo_long_only(hist.mean().values, sigma), index=tick)
+            return pd.Series(mvo_long_only(hist.mean().values, sigma, wmax=cfg.wmax), index=tick)
         if cfg.strategy == "mom_topk":
             mom = self.hist(period, tick, cfg.mom_window).mean().values
             w = np.zeros(n); w[np.argsort(-mom)[:cfg.topk]] = 1.0 / cfg.topk
@@ -111,29 +122,33 @@ class Engine:
         delta = self._delta(period, tick, sigma, cfg)
         pi = bl.equilibrium(sigma, w_m, delta)
         if cfg.strategy == "prior":
-            return pd.Series(mvo_long_only(pi, sigma), index=tick)
+            return pd.Series(mvo_long_only(pi, sigma, wmax=cfg.wmax), index=tick)
         if cfg.strategy == "mom_bl":
             q = self.hist(period, tick, cfg.mom_window).mean().values
             omega = np.diag(np.full(n, np.mean(np.diag(sigma))))
-            return pd.Series(mvo_long_only(bl.posterior_mean(pi, sigma, cfg.tau, q, omega), sigma), index=tick)
+            return pd.Series(mvo_long_only(bl.posterior_mean(pi, sigma, cfg.tau, q, omega), sigma, wmax=cfg.wmax), index=tick)
         if cfg.strategy == "stat_bl":
             q = hist.mean().values
             omega = np.diag(np.maximum(np.diag(sigma) / cfg.sigma_window, V.VAR_FLOOR))
-            return pd.Series(mvo_long_only(bl.posterior_mean(pi, sigma, cfg.tau, q, omega), sigma), index=tick)
+            return pd.Series(mvo_long_only(bl.posterior_mean(pi, sigma, cfg.tau, q, omega), sigma, wmax=cfg.wmax), index=tick)
         # LLM-based strategies
         if views is None or period not in views:
             raise KeyError(f"no views for {period}")
         q, s2 = V.view_stats(views[period], tick, n=cfg.n_draws, rng=rng)
+        if cfg.q_center:
+            q = q - q.mean() + pi.mean()
         if cfg.strategy == "llm_mvo":
-            return pd.Series(mvo_long_only(q, sigma), index=tick)
+            return pd.Series(mvo_long_only(q, sigma, wmax=cfg.wmax), index=tick)
         if cfg.strategy == "llm_topk":
             w = np.zeros(n); w[np.argsort(-q)[:cfg.topk]] = 1.0 / cfg.topk
             return pd.Series(w, index=tick)
         calib = cfg.calib.get(period) if isinstance(cfg.calib, dict) else cfg.calib
-        omega_kind = cfg.omega if not (cfg.omega == "calibrated" and calib is None) else "empirical"
+        omega_kind = cfg.omega if not (cfg.omega in ("calibrated", "linear") and calib is None) else "empirical"
         omega = V.make_omega(s2, omega_kind, sigma_diag=np.diag(sigma), tau=cfg.tau, calib=calib, rng=rng)
+        if cfg.omega_level == "hl":
+            omega = omega * (cfg.tau * np.mean(np.diag(sigma)) / np.mean(np.diag(omega)))
         mu = bl.posterior_mean(pi, sigma, cfg.tau, q, omega)
-        return pd.Series(mvo_long_only(mu, sigma), index=tick)
+        return pd.Series(mvo_long_only(mu, sigma, wmax=cfg.wmax), index=tick)
 
     def weights(self, cfg: Config, views: dict | None, periods: list[tuple[str, str]]) -> dict:
         rng = np.random.default_rng(cfg.seed)
@@ -174,11 +189,15 @@ class Engine:
             tick = self.universe(per)
             q, s2 = V.view_stats(views[per], tick, n=n_draws, rng=rng)
             hs, he = periods[i + 1]
-            realized = self.md.returns.loc[hs:he, tick].mean().values
+            hold = self.md.returns.loc[hs:he, tick]
+            realized, nday = hold.mean().values, hold.notna().sum().values
             mom = self.hist(per, tick, 10).mean().values
+            vol2 = self.hist(per, tick, 126).var(ddof=1).values
             for k, t in enumerate(tick):
-                rows.append((per[0], t, q[k], s2[k], realized[k], mom[k]))
-        df = pd.DataFrame(rows, columns=["period", "ticker", "q", "s2", "realized", "mom10"]).dropna(subset=["q", "realized"])
+                rows.append((per[0], t, q[k], s2[k], realized[k], mom[k], vol2[k], nday[k]))
+        df = pd.DataFrame(rows, columns=["period", "ticker", "q", "s2", "realized", "mom10", "vol2", "nday"]).dropna(subset=["q", "realized"])
+        # realized = mu + holding-period noise with variance ~ vol2 / nday (design doc 6.0)
+        df["noise"] = df["vol2"] / df["nday"].clip(lower=1)
         df["err"] = df["q"] - df["realized"]
         df["sq_err"] = df["err"] ** 2
         df["z"] = df["err"] / np.sqrt(df["s2"].clip(lower=V.VAR_FLOOR))

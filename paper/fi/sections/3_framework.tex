@@ -1,0 +1,60 @@
+\section{Framework}\label{sec:framework}
+
+This section restates the Black--Litterman update, defines the mapping from repeated LLM forecasts to its inputs, and states what that mapping must satisfy to be useful. The last part turns those requirements into two tests that we fixed before running the out-of-sample experiments.
+
+\subsection{Black--Litterman with absolute views}
+At a rebalancing date the investor holds $n$ assets with covariance matrix $\Sig$ and market-capitalization weights $\bw_m$. The equilibrium prior for expected excess returns is
+\begin{equation}
+  \bmu \sim \mathcal{N}(\bm{\Pi}, \tau\Sig), \qquad \bm{\Pi} = \delta \Sig \bw_m ,
+\end{equation}
+where $\delta$ is the market's risk aversion and $\tau$ scales the uncertainty of the prior \citep{black1992global,he2002intuition}. The investor states one absolute view per asset ($\bm{P}=\bm{I}$),
+\begin{equation}
+  \bq = \bmu + \bm{\varepsilon}, \qquad \bm{\varepsilon} \sim \mathcal{N}(\bm{0}, \Om), \quad \Om = \mathrm{diag}(\Omega_{11},\dots,\Omega_{nn}),
+\end{equation}
+and the posterior mean is
+\begin{equation}\label{eq:posterior}
+  \bmu_{BL} = \left[(\tau\Sig)^{-1} + \Om^{-1}\right]^{-1}\left[(\tau\Sig)^{-1}\bm{\Pi} + \Om^{-1}\bq\right].
+\end{equation}
+Weights solve the long-only problem $\min_{\bw}\ \bw^\top\Sig\bw - \lambda\,\bw^\top\bmu_{BL}$ subject to $\bm{1}^\top\bw = 1$ and $0 \le w_i \le w_{\max}$, with $\lambda = 0.1$ as in the original study and $w_{\max}=1$ unless stated otherwise.
+
+$\Omega_{ii}$ is the variance of the view error $q_i - \mu_i$: how far the stated view can be from the true expected return. Equation~\eqref{eq:posterior} uses $\Omega_{ii}^{-1}$ as the weight on view $i$. A source of $\Om$ is therefore useful only if views that it labels as uncertain are, on average, further from $\mu_i$.
+
+\subsection{From repeated forecasts to $(\bq, \Om)$}
+For asset $i$ at a rebalancing date we send the same prompt $N$ times and record numerical forecasts $y_{i1},\dots,y_{iN}$ of the asset's average daily return over the next two weeks. The mapping of the original study is
+\begin{equation}\label{eq:mapping}
+  q_i = \bar y_i = \frac{1}{N}\sum_{k=1}^N y_{ik}, \qquad \Omega_{ii} = s_i^2 = \frac{1}{N-1}\sum_{k=1}^N (y_{ik}-\bar y_i)^2 .
+\end{equation}
+$s_i^2$ is not divided by $N$, because it is read as the model's uncertainty about the view, not as the sampling error of $\bar y_i$. We call this the \emph{empirical} $\Om$.
+
+\subsection{What the mapping must satisfy}\label{sec:requirements}
+$\mu_i$ is never observed. What we observe is the realized average daily return over the holding period, $\bar r_i = \mu_i + \eta_i$, where $\eta_i$ is return noise with variance close to $\sigma_i^2/h$ for daily volatility $\sigma_i$ and $h$ trading days. If the view error and the noise are independent,
+\begin{equation}\label{eq:decomp}
+  \mathbb{E}\left[(q_i - \bar r_i)^2\right] = \underbrace{\mathbb{E}\left[(q_i-\mu_i)^2\right]}_{\text{view error, the target of } \Omega_{ii}} + \underbrace{\sigma_i^2/h}_{\text{return noise}} .
+\end{equation}
+Equation~\eqref{eq:decomp} has two consequences for evaluation.
+
+\paragraph{Level.} A nominal 95\% interval built from $s_i^2$ alone will cover $\bar r_i$ far less than 95\% of the time even when $s_i^2$ is exactly right, because it ignores $\sigma_i^2/h$. The correct check uses the predictive variance $s_i^2 + \sigma_i^2/h$. More importantly for the portfolio, the overall level of $\Om$ is not identified separately from $\tau$: from \eqref{eq:posterior}, $\bmu_{BL}(c\tau, c\Om) = \bmu_{BL}(\tau,\Om)$ for any $c>0$. A $\tau$ chosen out of sample (Section~\ref{sec:tau}) absorbs any uniform over- or under-confidence. What $\tau$ cannot absorb is variation of the level from one rebalancing date to the next, because $\tau$ is held fixed within a quarter.
+
+\paragraph{Shape.} What the mapping must deliver is the cross-sectional \emph{shape} of $\Om$: whether assets with larger $s_i^2$ have larger view error. The expected squared error in \eqref{eq:decomp} grows with $\sigma_i^2$ through the noise term, and LLM forecasts for volatile stocks are also more dispersed. A raw rank correlation between $s_i^2$ and squared error can therefore be produced by volatility alone. The relevant comparator is the He--Litterman convention $\Omega_{ii} \propto \tau\Sig_{ii}$ \citep{he2002intuition}, which already encodes volatility. After rescaling both to the same average level, the empirical $\Om$ differs from He--Litterman exactly by the volatility-standardized dispersion $s_i^2/\Sig_{ii}$. The question ``does LLM dispersion carry information about view error beyond volatility?'' is the same as ``does the empirical $\Om$ beat He--Litterman?''
+
+\subsection{Variants of $\Om$}\label{sec:omega_variants}
+All variants use the same $\bq$, so differences in portfolio outcomes come from $\Om$ only.
+\begin{itemize}
+  \item \textbf{Empirical}: $\Omega_{ii} = s_i^2$ (Eq.~\ref{eq:mapping}).
+  \item \textbf{Constant}: $\Omega_{ii} = \frac{1}{n}\sum_j s_j^2$. Same level as empirical, no cross-sectional shape.
+  \item \textbf{Shuffled}: the values $s_j^2$ randomly permuted across assets. Same distribution, wrong assignment.
+  \item \textbf{He--Litterman}: $\Omega_{ii} = \tau \Sig_{ii}$.
+  \item \textbf{Isotonic-calibrated}: $\Omega_{ii} = g(s_i^2)$ with $g$ a monotone map from $\log s^2$ to realized squared error, fitted by isotonic regression on earlier forecast--outcome pairs only.
+  \item \textbf{Linear-calibrated}: $\Omega_{ii} = \max(a + b\,s_i^2, \epsilon)$, with $(a,b)$ from least squares of the noise-adjusted squared error $(q_j-\bar r_j)^2 - \hat\sigma_j^2/h$ on $s_j^2$ over earlier pairs, $b\ge 0$. This targets the view error in \eqref{eq:decomp} directly.
+\end{itemize}
+We report each variant under four specifications: as defined (\emph{raw}); \emph{level-matched}, where $\Om$ is rescaled at each date so that its cross-sectional mean equals $\tau\cdot\frac{1}{n}\sum_i\Sig_{ii}$, which removes the date-to-date level variation that $\tau$ cannot absorb and leaves only shape; with a 10\% per-asset weight cap; and with both.
+
+\subsection{Choosing $\tau$ out of sample}\label{sec:tau}
+For each strategy that has a $\tau$, we compute weight paths for 13 values of $\tau$ on a log grid from $10^{-3}$ to $10$. At the start of each calendar quarter we pick the $\tau$ with the highest Sharpe ratio over all earlier holding periods (expanding window, net of costs) and use it for that quarter. The first two quarters are used only to make the first choice and are not evaluated. Calibration maps are fitted with the same expanding window. Every comparison below therefore uses the same, fully out-of-sample procedure; no parameter is tuned on the evaluation period as a whole.
+
+\subsection{Pre-specified tests}\label{sec:criteria}
+Before running the out-of-sample LLM collection we fixed two tests of the framework in the project's design document. Comparisons with naive or momentum portfolios are reported but are not part of the tests, because the framework's claim concerns the mapping, not the return forecasting skill of a particular model.
+\begin{enumerate}
+  \item[(a)] \textbf{Information}: $s_i^2$ is associated with view error beyond volatility. Measured by the Spearman correlation between $s_i^2/\hat\sigma_i^2$ and $(q_i-\bar r_i)^2/\hat\sigma_i^2$, its within-date average, and the partial rank correlation given $\hat\sigma_i^2$.
+  \item[(b)] \textbf{Decision value}: with the same $\bq$, the empirical $\Om$ yields a higher out-of-sample Sharpe ratio than the constant and the He--Litterman $\Om$.
+\end{enumerate}

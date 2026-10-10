@@ -31,7 +31,8 @@ def make_omega(s2: np.ndarray, kind: str, sigma_diag: np.ndarray | None = None, 
       constant      Omega_ii = mean_i s2_i               (level only; tau then sets the scale)
       shuffle       Omega_ii = s2_perm(i)                (same values, random assignment across assets)
       he_litterman  Omega_ii = tau * Sigma_ii            (He & Litterman 1999 convention)
-      calibrated    Omega_ii = calib(s2_i)               (validation-fit monotone map s2 -> realized squared error)
+      calibrated    Omega_ii = calib(s2_i)               (past-fit isotonic map s2 -> realized squared error)
+      linear        Omega_ii = calib(s2_i)               (past-fit a + b*s2 for the view error net of return noise)
     Missing s2 (NaN) are replaced by the cross-sectional mean before mapping.
     """
     s2 = np.where(np.isnan(s2), np.nanmean(s2), s2)
@@ -43,7 +44,7 @@ def make_omega(s2: np.ndarray, kind: str, sigma_diag: np.ndarray | None = None, 
         om = rng.permutation(s2)
     elif kind == "he_litterman":
         om = tau * sigma_diag
-    elif kind == "calibrated":
+    elif kind in ("calibrated", "linear"):
         om = calib(s2)
     else:
         raise ValueError(kind)

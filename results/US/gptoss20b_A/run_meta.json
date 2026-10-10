@@ -1,5 +1,5 @@
 {
-  "revision": "02ede29",
+  "revision": "4ab076d-dirty",
   "args": {
     "market": "US",
     "model_tag": "gptoss20b",
@@ -12,6 +12,6 @@
     "n_boot": 2000
   },
   "n_jobs": 926,
-  "finished": "2026-10-10 11:47:59",
-  "elapsed_s": 287.8
+  "finished": "2026-10-10 11:53:50",
+  "elapsed_s": 287.7
 }

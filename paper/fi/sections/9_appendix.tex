@@ -1,0 +1,45 @@
+\section{Prompt A}\label{app:prompt}
+System message (US; for other markets the index, country and currency change):
+\begin{quote}\small\ttfamily\raggedright
+You are providing analysis on \{date\}. Predict the average daily return (in percent) of a stock over the next two weeks (10 trading days) from its recent performance. The stock is a constituent of the S\&P 500 index (United States); prices are in USD.\\
+\# Inputs\\
+- Company Information: name, identifier, country and index.\\
+- Daily Returns: the stock's daily returns (\%) over the past two weeks, oldest first.\\
+- Market Returns: the cap-weighted daily returns (\%) of the index's largest constituents over the same days.\\
+\# Steps\\
+1. Assess the recent trend and volatility of the stock relative to the market.\\
+2. Consider mean reversion and momentum over a two-week horizon.\\
+3. Estimate the average daily return over the next two weeks.\\
+\# Output\\
+Return only a JSON object: \{"expected\_return": <number>\} where the number is the predicted average daily return in percent (e.g.\ 0.12 means +0.12\% per day). No other text.
+\end{quote}
+User message: company name, ticker, the ten daily returns of the stock and of the market in percent with two decimals. For gpt-oss the line ``Reasoning: low'' precedes the system message. Responses that are not valid JSON are parsed for the first number; responses without a number are dropped.
+
+\section{Model cutoffs}\label{app:cutoffs}
+\todo{Table from docs/R4: model, developer-stated cutoff, source URL, reason for exclusion of Gemma 4, Nemotron, Qwen.}
+
+\section{Additional robustness tables}
+
+\begin{table}[h]
+\centering
+\caption{Sensitivity to the risk-aversion parameter $\delta$ (annualized Sharpe ratio, 2025, 10 bp). ``252-day est.'' uses $\hat\delta_t = \mathbb{E}[r_m-r_f]/\mathrm{Var}(r_m)$ over the trailing 252 days at each date.}
+\label{tab:delta}
+\small
+\input{tables/tab_delta}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Views centred on the prior: $q_i \leftarrow q_i - \bar q + \bar\Pi$ at each date, which removes the common optimism of the views and keeps their cross-sectional ranking (annualized Sharpe ratio).}
+\label{tab:center}
+\small
+\input{tables/tab_center}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Sensitivity to one-way transaction costs (annualized Sharpe ratio, 2025).}
+\label{tab:costs}
+\small
+\input{tables/tab_costs}
+\end{table}

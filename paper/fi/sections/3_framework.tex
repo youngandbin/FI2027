@@ -19,7 +19,7 @@ Weights solve the long-only problem $\min_{\bw}\ \bw^\top\Sig\bw - \lambda\,\bw^
 
 $\Omega_{ii}$ is the variance of the view error $q_i - \mu_i$: how far the stated view can be from the true expected return. Equation~\eqref{eq:posterior} uses $\Omega_{ii}^{-1}$ as the weight on view $i$. A source of $\Om$ is therefore useful only if views that it labels as uncertain are, on average, further from $\mu_i$.
 
-\subsection{From repeated forecasts to $(\bq, \Om)$}
+\subsection{From repeated forecasts to \texorpdfstring{$(\bq, \Om)$}{(q, Omega)}}
 For asset $i$ at a rebalancing date we send the same prompt $N$ times and record numerical forecasts $y_{i1},\dots,y_{iN}$ of the asset's average daily return over the next two weeks. The mapping of the original study is
 \begin{equation}\label{eq:mapping}
   q_i = \bar y_i = \frac{1}{N}\sum_{k=1}^N y_{ik}, \qquad \Omega_{ii} = s_i^2 = \frac{1}{N-1}\sum_{k=1}^N (y_{ik}-\bar y_i)^2 .
@@ -37,7 +37,7 @@ Equation~\eqref{eq:decomp} has two consequences for evaluation.
 
 \paragraph{Shape.} What the mapping must deliver is the cross-sectional \emph{shape} of $\Om$: whether assets with larger $s_i^2$ have larger view error. The expected squared error in \eqref{eq:decomp} grows with $\sigma_i^2$ through the noise term, and LLM forecasts for volatile stocks are also more dispersed. A raw rank correlation between $s_i^2$ and squared error can therefore be produced by volatility alone. The relevant comparator is the He--Litterman convention $\Omega_{ii} \propto \tau\Sig_{ii}$ \citep{he2002intuition}, which already encodes volatility. After rescaling both to the same average level, the empirical $\Om$ differs from He--Litterman exactly by the volatility-standardized dispersion $s_i^2/\Sig_{ii}$. The question ``does LLM dispersion carry information about view error beyond volatility?'' is the same as ``does the empirical $\Om$ beat He--Litterman?''
 
-\subsection{Variants of $\Om$}\label{sec:omega_variants}
+\subsection{Variants of \texorpdfstring{$\Om$}{Omega}}\label{sec:omega_variants}
 All variants use the same $\bq$, so differences in portfolio outcomes come from $\Om$ only.
 \begin{itemize}
   \item \textbf{Empirical}: $\Omega_{ii} = s_i^2$ (Eq.~\ref{eq:mapping}).
@@ -49,7 +49,7 @@ All variants use the same $\bq$, so differences in portfolio outcomes come from 
 \end{itemize}
 We report each variant under four specifications: as defined (\emph{raw}); \emph{level-matched}, where $\Om$ is rescaled at each date so that its cross-sectional mean equals $\tau\cdot\frac{1}{n}\sum_i\Sig_{ii}$, which removes the date-to-date level variation that $\tau$ cannot absorb and leaves only shape; with a 10\% per-asset weight cap; and with both.
 
-\subsection{Choosing $\tau$ out of sample}\label{sec:tau}
+\subsection{Choosing \texorpdfstring{$\tau$}{tau} out of sample}\label{sec:tau}
 For each strategy that has a $\tau$, we compute weight paths for 13 values of $\tau$ on a log grid from $10^{-3}$ to $10$. At the start of each calendar quarter we pick the $\tau$ with the highest Sharpe ratio over all earlier holding periods (expanding window, net of costs) and use it for that quarter. The first two quarters are used only to make the first choice and are not evaluated. Calibration maps are fitted with the same expanding window. Every comparison below therefore uses the same, fully out-of-sample procedure; no parameter is tuned on the evaluation period as a whole.
 
 \subsection{Pre-specified tests}\label{sec:criteria}

@@ -1,0 +1,28 @@
+{
+  "delta_est_min": 3.2559925119786555,
+  "delta_est_median": 5.624168672926097,
+  "delta_est_max": 17.96868994000635,
+  "decile_ratio_s2": 120.64981695002629,
+  "decile_ratio_sqerr": 3.976092108091074,
+  "decile_ratio_noise": 3.1606610199568066,
+  "within_date_p90_p10_s2": 22.313020223210245,
+  "within_date_p90_p10_vol2": 5.5947693577963875,
+  "rho_volstd_dispersion_absmom": 0.5158713244415329,
+  "mean_unique": 10.009142857142857,
+  "mean_mode_share": 0.28981487050960736,
+  "top_values": [
+    [
+      0.05,
+      3451
+    ],
+    [
+      0.15,
+      1868
+    ],
+    [
+      0.1,
+      1620
+    ]
+  ],
+  "n_draws_total": 34762
+}
